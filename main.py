@@ -13,11 +13,11 @@ def    run_event_planner():
     flow = EventManagementFlow()
     
     user_inputs = {
-        "event_topic": "AI & Startup Summit",
-        "description": "A tech conference with keynote speakers and networking dinner",
-        "city": "Ballia",
-        "guests": 150,
-        "total_budget": 50000
+        "event_topic": " marriage engagement ",
+        "description": "A high profile meetup from diffrent places near beach",
+        "city": "goa",
+        "guests": 300,
+        "total_budget": 1000000
     }
     
     print("Flow start ho raha hai...")

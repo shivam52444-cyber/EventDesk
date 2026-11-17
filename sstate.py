@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,field_validator
 from typing import List
+from gaurdrails import validate_with_lakera
 
-# 1. Venue Task ka Output
 class VenueDetails(BaseModel):
     venue_name: str = Field(description="Selected hotel or banquet hall name")
     address: str = Field(description="Full address of the venue")
@@ -10,7 +10,7 @@ class VenueDetails(BaseModel):
     has_inhouse_catering: bool = Field(description="True if venue provides in-house catering within estimated_cost, False otherwise")
     included_facilities: List[str] = Field(description="Facilities already included like stage, projector, sound, parking")
 
-# 2. Logistics Task ka Output (Budget Negotiation ke saath)
+
 class LogisticsPlan(BaseModel):
     is_within_budget: bool = Field(description="True if required food (if any) and missing equipment fit inside remaining_budget, False if too low")
     negotiation_feedback: str = Field(description="If False, explain exact minimum budget needed for remaining items so Venue agent can find a cheaper hall")
@@ -19,7 +19,7 @@ class LogisticsPlan(BaseModel):
     equipment_list: List[str] = Field(description="Only missing AV, lighting, and seating equipment not provided by venue")
     estimated_logistics_cost: int = Field(description="Additional cost for external food (0 if in-house) + missing equipment as a plain integer")
 
-# 3. Marketing Task ka Output
+
 class MarketingPlan(BaseModel):
     target_audience: str = Field(description="Primary audience groups to target")
     invitation_message: str = Field(description="Ready-to-send invitation with exact venue name, address, and highlights")
@@ -41,6 +41,41 @@ class EventState(BaseModel):
     negotiation_attempts: int = 0
     max_negotiations: int = 3  # <-- Yahan se aap back-and-forth limit control kar sakte hain!
     catering_preference: str = "Venue In-house Catering"
+    @field_validator("total_budget")
+    @classmethod
+    def validate_budget(cls, v: int) -> int:
+        if v < 5000:
+            raise ValueError("Guardrail Error: Minimum 'total_budget' should be at least ₹5,000.")
+        return v
+    @field_validator("event_topic")
+    @classmethod
+    def check_topic(cls, v: str) -> str:
+        if len(v.strip()) < 3:
+            raise ValueError("Event topic length should be at least 3 characters.")
+        return validate_with_lakera(v, "event_topic")
+    
+    @field_validator("description")
+    @classmethod
+    def check_description(cls, v: str) -> str:
+        if len(v.strip()) < 10:
+            raise ValueError("Description length should be at least 10 characters.")
+        return validate_with_lakera(v, "description")
+    
+    @field_validator("city")
+    @classmethod
+    def check_city(cls, v: str) -> str:
+        if len(v.strip()) < 1:
+            raise ValueError("City name is not valid.")
+        return validate_with_lakera(v, "city")
+    
+    @field_validator("guests")
+    @classmethod
+    def validate_guests(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("Guardrail Error: 'guests' ki sankhya 0 se zyada honi chahiye.")
+        if v > 50000:
+            raise ValueError("Guardrail Error: 50,000 se zyada guests ke liye custom enterprise setup chahiye.")
+        return v
     
     venue_info: dict = {}
     logistics_info: dict = {}

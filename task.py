@@ -8,7 +8,10 @@ venue_task = Task(
         "Find the best venue in {city} for '{event_topic}' ({description}) "
         "accommodating {guests} guests. Total overall event budget is {total_budget}. "
         "BUDGET & NEGOTIATION GUIDELINE: {venue_feedback}. "
+        "CRITICAL RULE: NEVER use placeholders like [Insert Date], [Insert Time], or [Insert Link]. "
         "Clearly verify whether the venue includes in-house catering in its cost or not."
+        "If the exact event date, time, or registration link is NOT provided in the description, "
+        "you MUST use the 'Ask Human Tool' to ask the user for those missing details before writing the final invitation."
     ),
     expected_output="Structured venue details with exact estimated_cost, included_facilities, and has_inhouse_catering.",
     output_pydantic=VenueDetails,
