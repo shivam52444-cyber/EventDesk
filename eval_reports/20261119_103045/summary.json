@@ -1,0 +1,339 @@
+{
+ "generated": "2026-11-19T10:36:06",
+ "runs": 16,
+ "skipped": 0,
+ "golden_pass_rate": 0.812,
+ "metric_pass_rate": 0.896,
+ "per_metric": {
+  "RunCompletion": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 6,
+   "passed": 3,
+   "pass_rate": 0.5,
+   "mean_score": 0.5
+  },
+  "SchemaIntegrity": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CapacityFit": {
+   "angle": "accuracy",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CityMatch": {
+   "angle": "accuracy",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetCompliance": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetGuideline": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetSelfConsistency": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "NegotiationLoop": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CateringHandling": {
+   "angle": "routing",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "FlowRouting": {
+   "angle": "routing",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "NoPlaceholderLeak": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 2,
+   "pass_rate": 0.667,
+   "mean_score": 0.667
+  },
+  "InvitationGrounding": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "HumanInfoPropagation": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 1,
+   "pass_rate": 0.333,
+   "mean_score": 0.333
+  },
+  "VenueGroundedInEvidence": {
+   "angle": "grounding",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolSelection": {
+   "angle": "tools",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolBudget": {
+   "angle": "tools",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolRetryHealth": {
+   "angle": "retries",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "AgentRetryHealth": {
+   "angle": "retries",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "StepBudget": {
+   "angle": "efficiency",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "StepEfficiency": {
+   "angle": "efficiency",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "TokenBudget": {
+   "angle": "tokens",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "LatencyBudget": {
+   "angle": "latency",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "HumanInteraction": {
+   "angle": "human_loop",
+   "kind": "deterministic",
+   "n": 3,
+   "passed": 1,
+   "pass_rate": 0.333,
+   "mean_score": 0.778
+  },
+  "JudgeVenueSuitability": {
+   "angle": "accuracy",
+   "kind": "judge",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 0.967
+  },
+  "JudgeLogisticsSoundness": {
+   "angle": "accuracy",
+   "kind": "judge",
+   "n": 3,
+   "passed": 2,
+   "pass_rate": 0.667,
+   "mean_score": 0.7
+  },
+  "JudgeCampaignQuality": {
+   "angle": "output_quality",
+   "kind": "judge",
+   "n": 3,
+   "passed": 2,
+   "pass_rate": 0.667,
+   "mean_score": 0.633
+  },
+  "JudgeOverallVsRubric": {
+   "angle": "accuracy",
+   "kind": "judge",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 0.867
+  },
+  "FaithfulnessToToolEvidence": {
+   "angle": "grounding",
+   "kind": "judge",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 0.889
+  },
+  "ArgumentCorrectness": {
+   "angle": "tools",
+   "kind": "judge",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolCorrectness": {
+   "angle": "tools",
+   "kind": "judge",
+   "n": 3,
+   "passed": 3,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "Toxicity": {
+   "angle": "safety",
+   "kind": "judge",
+   "n": 3,
+   "passed": 2,
+   "pass_rate": 0.667,
+   "mean_score": 0.667
+  },
+  "GuardrailEnforcement": {
+   "angle": "safety",
+   "kind": "deterministic",
+   "n": 10,
+   "passed": 10,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  }
+ },
+ "per_category": {
+  "happy_path": {
+   "runs": 2,
+   "passed": 2
+  },
+  "catering_routing": {
+   "runs": 2,
+   "passed": 1
+  },
+  "human_in_loop": {
+   "runs": 2,
+   "passed": 0
+  },
+  "guardrail": {
+   "runs": 10,
+   "passed": 10
+  }
+ },
+ "tokens": {
+  "mean": 26591.7,
+  "p50": 25314.0,
+  "p95": 39044.4,
+  "max": 40570
+ },
+ "llm_calls": {
+  "mean": 8.3,
+  "p50": 8.0,
+  "p95": 8.9,
+  "max": 9
+ },
+ "tool_calls": {
+  "mean": 5.3,
+  "p50": 5.0,
+  "p95": 5.9,
+  "max": 6
+ },
+ "latency_s": {
+  "mean": 27.1,
+  "p50": 28.1,
+  "p95": 30.0,
+  "max": 30.2
+ },
+ "cost_usd_total": 0.0,
+ "totals": {
+  "tool_errors": 0,
+  "tool_retries": 0,
+  "dup_tool_calls": 0,
+  "agent_retries": 0,
+  "llm_failures": 0,
+  "renegotiations": 0,
+  "human_questions": 3
+ },
+ "consistency": {},
+ "known_gap_status": {},
+ "critical_failures": [
+  {
+   "golden_id": "G14_chennai_inhouse_banquet",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.c"
+  },
+  {
+   "golden_id": "G15_missing_date_time",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.c"
+  },
+  {
+   "golden_id": "G16_date_in_description",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://aistudio.google.c"
+  }
+ ]
+}

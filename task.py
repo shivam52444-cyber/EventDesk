@@ -2,7 +2,7 @@ from crewai import Task
 from agent import venue_coordinator, logistics_manager, marketing_agent
 from sstate import VenueDetails, LogisticsPlan, MarketingPlan
 
-# TASK 1: Venue Coordinator (Bina 'f' ke placeholders)
+
 venue_task = Task(
     description=(
         "Find the best venue in {city} for '{event_topic}' ({description}) "
@@ -18,7 +18,7 @@ venue_task = Task(
     agent=venue_coordinator
 )
 
-# TASK 2: Logistics Manager (Bina 'f' ke placeholders)
+
 logistics_task = Task(
     description=(
         "Plan logistics for {guests} guests at the selected venue: {venue_info}. "
@@ -37,7 +37,7 @@ logistics_task = Task(
     agent=logistics_manager
 )
 
-# TASK 3: Marketing Agent (Bina 'f' ke placeholders)
+
 marketing_task = Task(
     description=(
         "Create a promotional campaign and official invitation for '{event_topic}' ({description}). "

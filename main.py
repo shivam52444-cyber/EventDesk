@@ -9,7 +9,7 @@ from flow import EventManagementFlow
 from formatedtext import print_formatted_plan
 
 def    run_event_planner():
-    # Bina persistence (database) ke Flow banayein
+    
     flow = EventManagementFlow()
     
     user_inputs = {
@@ -21,7 +21,7 @@ def    run_event_planner():
     }
     
     print("Flow start ho raha hai...")
-    # Agar catering missing hogi toh yeh khud terminal par ruk kar aapse jawab maangega
+    
     result = flow.kickoff(inputs=user_inputs)
     
     print("\n=== FINAL EVENT PLAN ===")

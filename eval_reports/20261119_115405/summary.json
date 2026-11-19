@@ -1,0 +1,117 @@
+{
+ "generated": "2026-11-19T11:54:20",
+ "runs": 16,
+ "skipped": 0,
+ "golden_pass_rate": 0.625,
+ "metric_pass_rate": 0.625,
+ "per_metric": {
+  "RunCompletion": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 6,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "GuardrailEnforcement": {
+   "angle": "safety",
+   "kind": "deterministic",
+   "n": 10,
+   "passed": 10,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  }
+ },
+ "per_category": {
+  "happy_path": {
+   "runs": 2,
+   "passed": 0
+  },
+  "catering_routing": {
+   "runs": 2,
+   "passed": 0
+  },
+  "human_in_loop": {
+   "runs": 2,
+   "passed": 0
+  },
+  "guardrail": {
+   "runs": 10,
+   "passed": 10
+  }
+ },
+ "tokens": {
+  "mean": 0,
+  "p50": 0.0,
+  "p95": 0.0,
+  "max": 0
+ },
+ "llm_calls": {
+  "mean": 0,
+  "p50": 0.0,
+  "p95": 0.0,
+  "max": 0
+ },
+ "tool_calls": {
+  "mean": 0,
+  "p50": 0.0,
+  "p95": 0.0,
+  "max": 0
+ },
+ "latency_s": {
+  "mean": 0,
+  "p50": 0.0,
+  "p95": 0.0,
+  "max": 0
+ },
+ "cost_usd_total": 0.0,
+ "totals": {
+  "tool_errors": 0,
+  "tool_retries": 0,
+  "dup_tool_calls": 0,
+  "agent_retries": 0,
+  "llm_failures": 0,
+  "renegotiations": 0,
+  "human_questions": 0
+ },
+ "consistency": {},
+ "known_gap_status": {},
+ "critical_failures": [
+  {
+   "golden_id": "G01_goa_engagement_beach",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and i"
+  },
+  {
+   "golden_id": "G02_blr_tech_conference",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and i"
+  },
+  {
+   "golden_id": "G13_ahmedabad_jain_no_inhouse",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and i"
+  },
+  {
+   "golden_id": "G14_chennai_inhouse_banquet",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and i"
+  },
+  {
+   "golden_id": "G15_missing_date_time",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and i"
+  },
+  {
+   "golden_id": "G16_date_in_description",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / ClientError: ClientError: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and i"
+  }
+ ]
+}

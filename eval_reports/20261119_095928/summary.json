@@ -1,0 +1,333 @@
+{
+ "generated": "2026-11-19T10:00:12",
+ "runs": 16,
+ "skipped": 0,
+ "golden_pass_rate": 0.625,
+ "metric_pass_rate": 0.743,
+ "per_metric": {
+  "RunCompletion": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 6,
+   "passed": 4,
+   "pass_rate": 0.667,
+   "mean_score": 0.667
+  },
+  "SchemaIntegrity": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CapacityFit": {
+   "angle": "accuracy",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CityMatch": {
+   "angle": "accuracy",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetCompliance": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetGuideline": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetSelfConsistency": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "NegotiationLoop": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CateringHandling": {
+   "angle": "routing",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "FlowRouting": {
+   "angle": "routing",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "NoPlaceholderLeak": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 3,
+   "pass_rate": 0.75,
+   "mean_score": 0.75
+  },
+  "InvitationGrounding": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "HumanInfoPropagation": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 3,
+   "pass_rate": 0.75,
+   "mean_score": 0.75
+  },
+  "VenueGroundedInEvidence": {
+   "angle": "grounding",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolSelection": {
+   "angle": "tools",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolBudget": {
+   "angle": "tools",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolRetryHealth": {
+   "angle": "retries",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "AgentRetryHealth": {
+   "angle": "retries",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 2,
+   "pass_rate": 0.5,
+   "mean_score": 0.75
+  },
+  "StepBudget": {
+   "angle": "efficiency",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "StepEfficiency": {
+   "angle": "efficiency",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 3,
+   "pass_rate": 0.75,
+   "mean_score": 0.842
+  },
+  "TokenBudget": {
+   "angle": "tokens",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "LatencyBudget": {
+   "angle": "latency",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "HumanInteraction": {
+   "angle": "human_loop",
+   "kind": "deterministic",
+   "n": 4,
+   "passed": 3,
+   "pass_rate": 0.75,
+   "mean_score": 0.917
+  },
+  "JudgeVenueSuitability": {
+   "angle": "accuracy",
+   "kind": "judge",
+   "n": 4,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "JudgeLogisticsSoundness": {
+   "angle": "accuracy",
+   "kind": "judge",
+   "n": 4,
+   "passed": 1,
+   "pass_rate": 0.25,
+   "mean_score": 0.175
+  },
+  "JudgeCampaignQuality": {
+   "angle": "output_quality",
+   "kind": "judge",
+   "n": 4,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "JudgeOverallVsRubric": {
+   "angle": "accuracy",
+   "kind": "judge",
+   "n": 4,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "FaithfulnessToToolEvidence": {
+   "angle": "grounding",
+   "kind": "judge",
+   "n": 4,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "ArgumentCorrectness": {
+   "angle": "tools",
+   "kind": "judge",
+   "n": 4,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "ToolCorrectness": {
+   "angle": "tools",
+   "kind": "judge",
+   "n": 4,
+   "passed": 4,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "Toxicity": {
+   "angle": "safety",
+   "kind": "judge",
+   "n": 4,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "GuardrailEnforcement": {
+   "angle": "safety",
+   "kind": "deterministic",
+   "n": 10,
+   "passed": 10,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  }
+ },
+ "per_category": {
+  "happy_path": {
+   "runs": 2,
+   "passed": 0
+  },
+  "catering_routing": {
+   "runs": 2,
+   "passed": 0
+  },
+  "human_in_loop": {
+   "runs": 2,
+   "passed": 0
+  },
+  "guardrail": {
+   "runs": 10,
+   "passed": 10
+  }
+ },
+ "tokens": {
+  "mean": 39859.2,
+  "p50": 38617.5,
+  "p95": 66171.2,
+  "max": 68866
+ },
+ "llm_calls": {
+  "mean": 9.2,
+  "p50": 9.0,
+  "p95": 10.8,
+  "max": 11
+ },
+ "tool_calls": {
+  "mean": 4.5,
+  "p50": 5.0,
+  "p95": 5.0,
+  "max": 5
+ },
+ "latency_s": {
+  "mean": 26.9,
+  "p50": 28.2,
+  "p95": 29.3,
+  "max": 29.55
+ },
+ "cost_usd_total": 0.0,
+ "totals": {
+  "tool_errors": 0,
+  "tool_retries": 0,
+  "dup_tool_calls": 0,
+  "agent_retries": 2,
+  "llm_failures": 7,
+  "renegotiations": 0,
+  "human_questions": 2
+ },
+ "consistency": {},
+ "known_gap_status": {},
+ "critical_failures": [
+  {
+   "golden_id": "G13_ahmedabad_jain_no_inhouse",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / KeyboardInterrupt: KeyboardInterrupt: "
+  },
+  {
+   "golden_id": "G15_missing_date_time",
+   "repeat": 0,
+   "metric": "RunCompletion",
+   "reason": "exception / KeyboardInterrupt: KeyboardInterrupt: "
+  }
+ ]
+}

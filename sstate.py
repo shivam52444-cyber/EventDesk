@@ -72,9 +72,9 @@ class EventState(BaseModel):
     @classmethod
     def validate_guests(cls, v: int) -> int:
         if v <= 0:
-            raise ValueError("Guardrail Error: 'guests' ki sankhya 0 se zyada honi chahiye.")
+            raise ValueError("Guardrail Error: number of guests must be greater than 0.")
         if v > 50000:
-            raise ValueError("Guardrail Error: 50,000 se zyada guests ke liye custom enterprise setup chahiye.")
+            raise ValueError("Guardrail Error: number of guests exceeds maximum limit of 50,000.")
         return v
     
     venue_info: dict = {}

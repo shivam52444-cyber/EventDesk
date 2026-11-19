@@ -1,0 +1,626 @@
+{
+ "generated": "2026-11-19T09:43:18",
+ "runs": 102,
+ "skipped": 12,
+ "golden_pass_rate": 0.656,
+ "metric_pass_rate": 0.841,
+ "per_metric": {
+  "RunCompletion": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 63,
+   "passed": 38,
+   "pass_rate": 0.603,
+   "mean_score": 0.603
+  },
+  "SchemaIntegrity": {
+   "angle": "reliability",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CapacityFit": {
+   "angle": "accuracy",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 0.961
+  },
+  "CityMatch": {
+   "angle": "accuracy",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetCompliance": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "BudgetGuideline": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 0.999
+  },
+  "BudgetSelfConsistency": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "NegotiationLoop": {
+   "angle": "budget",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "CateringHandling": {
+   "angle": "routing",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "FlowRouting": {
+   "angle": "routing",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "NoPlaceholderLeak": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 24,
+   "pass_rate": 0.632,
+   "mean_score": 0.632
+  },
+  "InvitationGrounding": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "HumanInfoPropagation": {
+   "angle": "output_quality",
+   "kind": "deterministic",
+   "n": 36,
+   "passed": 21,
+   "pass_rate": 0.583,
+   "mean_score": 0.583
+  },
+  "VenueGroundedInEvidence": {
+   "angle": "grounding",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 36,
+   "pass_rate": 0.947,
+   "mean_score": 0.969
+  },
+  "ToolSelection": {
+   "angle": "tools",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "ToolBudget": {
+   "angle": "tools",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 36,
+   "pass_rate": 0.947,
+   "mean_score": 0.985
+  },
+  "ToolRetryHealth": {
+   "angle": "retries",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 28,
+   "pass_rate": 0.737,
+   "mean_score": 0.912
+  },
+  "AgentRetryHealth": {
+   "angle": "retries",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 35,
+   "pass_rate": 0.921,
+   "mean_score": 0.956
+  },
+  "StepBudget": {
+   "angle": "efficiency",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "StepEfficiency": {
+   "angle": "efficiency",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 37,
+   "pass_rate": 0.974,
+   "mean_score": 0.917
+  },
+  "TokenBudget": {
+   "angle": "tokens",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 9,
+   "pass_rate": 0.237,
+   "mean_score": 0.599
+  },
+  "LatencyBudget": {
+   "angle": "latency",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 38,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  },
+  "HumanInteraction": {
+   "angle": "human_loop",
+   "kind": "deterministic",
+   "n": 38,
+   "passed": 28,
+   "pass_rate": 0.737,
+   "mean_score": 0.912
+  },
+  "JudgeSetup": {
+   "angle": "llm_judge",
+   "kind": "judge",
+   "n": 38,
+   "passed": 0,
+   "pass_rate": 0.0,
+   "mean_score": 0.0
+  },
+  "FaultResilience": {
+   "angle": "resilience",
+   "kind": "deterministic",
+   "n": 9,
+   "passed": 3,
+   "pass_rate": 0.333,
+   "mean_score": 0.685
+  },
+  "GuardrailEnforcement": {
+   "angle": "safety",
+   "kind": "deterministic",
+   "n": 30,
+   "passed": 30,
+   "pass_rate": 1.0,
+   "mean_score": 1.0
+  }
+ },
+ "per_category": {
+  "happy_path": {
+   "runs": 24,
+   "passed": 16
+  },
+  "budget_stress": {
+   "runs": 6,
+   "passed": 4
+  },
+  "catering_routing": {
+   "runs": 6,
+   "passed": 2
+  },
+  "human_in_loop": {
+   "runs": 12,
+   "passed": 5
+  },
+  "fault_injection": {
+   "runs": 9,
+   "passed": 4
+  },
+  "robustness": {
+   "runs": 6,
+   "passed": 0
+  },
+  "guardrail": {
+   "runs": 30,
+   "passed": 30
+  }
+ },
+ "tokens": {
+  "mean": 302931.8,
+  "p50": 297623.5,
+  "p95": 582769.2,
+  "max": 605986
+ },
+ "llm_calls": {
+  "mean": 8.8,
+  "p50": 9.0,
+  "p95": 11.1,
+  "max": 13
+ },
+ "tool_calls": {
+  "mean": 6.2,
+  "p50": 6.0,
+  "p95": 9.1,
+  "max": 10
+ },
+ "latency_s": {
+  "mean": 35.8,
+  "p50": 34.1,
+  "p95": 60.2,
+  "max": 67.97
+ },
+ "cost_usd_total": 0.0,
+ "totals": {
+  "tool_errors": 4,
+  "tool_retries": 4,
+  "dup_tool_calls": 30,
+  "agent_retries": 4,
+  "llm_failures": 14,
+  "renegotiations": 0,
+  "human_questions": 47
+ },
+ "consistency": {
+  "G01_goa_engagement_beach": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.33
+  },
+  "G02_blr_tech_conference": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.27
+  },
+  "G03_jaipur_birthday": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.24
+  },
+  "G04_pune_dev_meetup": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.18
+  },
+  "G05_udaipur_wedding_reception": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.13
+  },
+  "G06_mumbai_product_launch": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.09
+  },
+  "G07_varanasi_seminar": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.07
+  },
+  "G08_hyderabad_alumni": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 1.05
+  },
+  "G11_ahmedabad_mega_annual_day": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 0.98
+  },
+  "G12_goa_luxury_small_party": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 0.97
+  },
+  "G13_ahmedabad_jain_no_inhouse": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.33,
+   "token_cv": 0.94
+  },
+  "G14_chennai_inhouse_banquet": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.33,
+   "token_cv": 0.92
+  },
+  "G15_missing_date_time": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.0,
+   "token_cv": 0.91
+  },
+  "G16_date_in_description": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 0.9
+  },
+  "G17_human_empty_then_valid": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.33,
+   "token_cv": 0.89
+  },
+  "G19_human_never_answers": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 0.88
+  },
+  "G20_search_outage_twice": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.67,
+   "token_cv": 0.87
+  },
+  "G22_scrape_timeouts": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.33,
+   "token_cv": 1.41
+  },
+  "G23_llm_transient_failure": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.33,
+   "token_cv": 1.41
+  },
+  "G25_hinglish_sagai": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.0,
+   "token_cv": 1.41
+  },
+  "G26_international_city": {
+   "repeats": 3,
+   "pass_all": false,
+   "pass_rate": 0.0,
+   "token_cv": 1.41
+  },
+  "GR01_budget_below_min": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR02_budget_at_min": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR03_guests_zero": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR04_guests_one": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR05_guests_max": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR06_guests_over_max": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR07_topic_too_short": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR08_description_too_short": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR09_city_blank": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  },
+  "GR10_padded_topic_accepted": {
+   "repeats": 3,
+   "pass_all": true,
+   "pass_rate": 1.0,
+   "token_cv": 0
+  }
+ },
+ "known_gap_status": {
+  "G09_infeasible_budget": false,
+  "G10_min_budget_boundary": false,
+  "G21_search_returns_nothing": false
+ },
+ "critical_failures": [
+  {
+   "golden_id": "G22_scrape_timeouts",
+   "repeat": 1,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G23_llm_transient_failure",
+   "repeat": 1,
+   "metric": "RunCompletion",
+   "reason": "exception / RuntimeError: RuntimeError: 503 UNAVAILABLE: model overloaded"
+  },
+  {
+   "golden_id": "G25_hinglish_sagai",
+   "repeat": 1,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G26_international_city",
+   "repeat": 1,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G01_goa_engagement_beach",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G02_blr_tech_conference",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G03_jaipur_birthday",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G04_pune_dev_meetup",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G05_udaipur_wedding_reception",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G06_mumbai_product_launch",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G07_varanasi_seminar",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G08_hyderabad_alumni",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G11_ahmedabad_mega_annual_day",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G12_goa_luxury_small_party",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G13_ahmedabad_jain_no_inhouse",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G14_chennai_inhouse_banquet",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G15_missing_date_time",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G16_date_in_description",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G17_human_empty_then_valid",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G19_human_never_answers",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G20_search_outage_twice",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G22_scrape_timeouts",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G23_llm_transient_failure",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / RuntimeError: RuntimeError: 503 UNAVAILABLE: model overloaded"
+  },
+  {
+   "golden_id": "G25_hinglish_sagai",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "golden_id": "G26_international_city",
+   "repeat": 2,
+   "metric": "RunCompletion",
+   "reason": "exception / ConnectError: ConnectError: [Errno 11001] getaddrinfo failed"
+  }
+ ]
+}
