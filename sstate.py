@@ -11,7 +11,8 @@ class VenueDetails(BaseModel):
     estimated_cost: int = Field(description="Total venue booking cost as a plain integer (including food if has_inhouse_catering is True)")
     has_inhouse_catering: bool = Field(description="True if venue provides in-house catering within estimated_cost, False otherwise")
     included_facilities: List[str] = Field(description="Facilities already included like stage, projector, sound, parking")
-
+    website_url: str = Field(default="Not listed", description="Official website or booking URL from search/scrape results (or 'Not listed' if not found; NEVER invent a fake URL)")
+    contact_info: str = Field(default="Not listed", description="Official phone number or email from search/scrape results (or 'Not listed' if not found)")
 
 class LogisticsPlan(BaseModel):
     is_within_budget: bool = Field(description="True if required food (if any) and missing equipment fit inside remaining_budget, False if too low")

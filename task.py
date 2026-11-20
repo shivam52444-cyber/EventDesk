@@ -15,8 +15,10 @@ def create_venue_task(agent: Agent) -> Task:
             "3. Do NOT ask about food/catering preferences (that is asked later in the flow). "
             "4. Only if exact event date, time, or RSVP link is missing from BOTH description and ALREADY ANSWERED BY USER, "
             "ask the user in a SINGLE combined question using 'Ask Human Tool'."
+            "5. Extract the real 'website_url' and 'contact_info' (phone/email) directly from the search/scrape results. If not found, set them to 'Not listed'—NEVER guess or fabricate URLs or phone numbers."
+
         ),
-        expected_output="Structured venue details with exact estimated_cost, included_facilities, and has_inhouse_catering.",
+        expected_output= " Extract the real 'website_url' and 'contact_info' (phone/email) directly from the search/scrape results. If not found, set them to 'Not listed'—NEVER guess or fabricate URLs or phone numbers.",
         output_pydantic=VenueDetails,
         agent=agent
     )

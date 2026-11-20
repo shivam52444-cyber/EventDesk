@@ -1,206 +1,359 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Event planner console</title>
-<style>
-  :root {
-    --bg: #f5f6f8; --surface: #ffffff; --ink: #1b2430; --muted: #5b6675; --line: #d9dee6;
-    --accent: #0f6b6b; --accent-ink: #ffffff; --warn: #a43d1f; --ok: #1f7a46;
-    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --serif: ui-serif, Georgia, "Times New Roman", serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #12161c; --surface: #1a2028; --ink: #e6eaf0; --muted: #98a3b3; --line: #2b3440;
-            --accent: #4cc2c2; --accent-ink: #0b1b1b; --warn: #ff9b7a; --ok: #6fd29a; }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
-  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 20px;
-         grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: start; }
-  @media (max-width: 800px) { main { grid-template-columns: minmax(0, 1fr); } }
-  h1 { font-size: 20px; margin: 0 0 4px; }
-  h2 { font-size: 15px; margin: 0 0 10px; }
-  p.lead { margin: 0 0 16px; color: var(--muted); }
-  section { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-  label { display: block; margin: 0 0 12px; font-weight: 600; }
-  input, textarea { display: block; width: 100%; margin-top: 4px; padding: 8px 10px; font: inherit; color: inherit;
-                    background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
-  textarea { min-height: 70px; resize: vertical; }
-  button { font: inherit; min-height: 40px; padding: 0 16px; border-radius: 6px; border: 1px solid var(--line);
-           background: var(--surface); color: var(--ink); cursor: pointer; }
-  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-  button:disabled { opacity: .5; cursor: not-allowed; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .msg { color: var(--warn); margin: 8px 0 0; min-height: 1.4em; }
-  .muted { color: var(--muted); }
-  ul.steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
-  ul.steps li { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
-  ul.steps li.started { border-color: var(--accent); color: var(--ink); }
-  ul.steps li.finished { border-color: var(--ok); color: var(--ok); }
-  ul.steps li.failed { border-color: var(--warn); color: var(--warn); }
-  #think { max-height: 260px; overflow: auto; font-family: var(--serif); font-size: 16px; line-height: 1.6; }
-  #think h4 { margin: 12px 0 2px; font: 600 13px var(--sans); color: var(--muted); }
-  #think h4:first-child { margin-top: 0; }
-  #think .block { white-space: pre-wrap; }
-  #think.live .block:last-child::after { content: ""; display: inline-block; width: 7px; height: 1em; margin-left: 2px;
-        vertical-align: text-bottom; background: var(--accent); animation: blink 1s steps(2) infinite; }
-  @media (prefers-reduced-motion: reduce) { #think.live .block:last-child::after { animation: none; } }
-  @keyframes blink { 50% { opacity: 0; } }
-  ul.tools { list-style: none; margin: 0; padding: 0; max-height: 150px; overflow: auto; }
-  ul.tools li { padding: 3px 0; border-bottom: 1px solid var(--line); word-break: break-word; }
-  ul.tools li.err { color: var(--warn); }
-  dl { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; margin: 0; }
-  dt { color: var(--muted); } dd { margin: 0; white-space: pre-wrap; word-break: break-word; }
-  #ask { border-color: var(--accent); }
-  #ask .opts { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
-  #ask form { display: flex; gap: 8px; } #ask form input { margin: 0; }
-  [hidden] { display: none !important; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Event Management Planner</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-light: #273549;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-grad: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      --venue-accent: #38bdf8;
+      --logistics-accent: #10b981;
+      --marketing-accent: #f43f5e;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 60px; }
+    header {
+      background: var(--primary-grad);
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    }
+    header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+    header p { color: rgba(255,255,255,0.9); margin-top: 6px; font-size: 0.95rem; }
+
+    .container { max-width: 1050px; margin: 28px auto; padding: 0 18px; display: grid; gap: 22px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+    input, textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: #818cf8; }
+
+    .btn {
+      background: var(--primary-grad);
+      color: white;
+      border: none;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--card-light); padding: 12px 18px; border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+    .badge {
+      padding: 4px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+      text-transform: uppercase; background: rgba(99,102,241,0.2); color: #a5b4fc;
+    }
+    .badge.running { background: rgba(56,189,248,0.2); color: #38bdf8; }
+    .badge.waiting_for_input { background: rgba(245,158,11,0.25); color: #fbbf24; }
+    .badge.succeeded { background: rgba(16,185,129,0.25); color: #34d399; }
+    .badge.failed { background: rgba(244,63,94,0.25); color: #fb7185; }
+
+    .hitl-box {
+      background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(236,72,153,0.15));
+      border: 1px solid #f59e0b;
+      border-radius: 14px;
+      padding: 18px;
+      display: none;
+    }
+    .hitl-box h3 { color: #fbbf24; margin-bottom: 8px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .chip {
+      background: #0f172a; border: 1px solid #f59e0b; color: #fde68a;
+      padding: 7px 14px; border-radius: 999px; cursor: pointer; font-size: 0.85rem;
+    }
+    .chip:hover { background: #f59e0b; color: #0f172a; font-weight: 700; }
+
+    .thought-box {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      max-height: 210px;
+      overflow-y: auto;
+      font-family: Consolas, monospace;
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+    }
+
+    .stage-card { border-top: 4px solid var(--primary); }
+    .stage-venue { border-top-color: var(--venue-accent); }
+    .stage-logistics { border-top-color: var(--logistics-accent); }
+    .stage-marketing { border-top-color: var(--marketing-accent); }
+    .stage-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
+
+    .pill {
+      display: inline-block; padding: 4px 10px; border-radius: 8px;
+      background: rgba(255,255,255,0.08); font-size: 0.82rem; margin: 3px 4px 3px 0;
+    }
+    .link-btn {
+      display: inline-block; margin-top: 10px; margin-right: 10px;
+      padding: 8px 14px; border-radius: 8px; text-decoration: none;
+      background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid #38bdf8;
+      font-weight: 600; font-size: 0.88rem;
+    }
+    .link-btn:hover { background: #38bdf8; color: #0f172a; }
+    .contact-pill {
+      display: inline-block; margin-top: 10px; padding: 8px 14px; border-radius: 8px;
+      background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid #10b981;
+      font-weight: 600; font-size: 0.88rem;
+    }
+    .invite-box {
+      background: #0f172a; padding: 14px; border-radius: 10px;
+      border-left: 3px solid var(--marketing-accent); white-space: pre-wrap; margin-top: 8px;
+    }
+    .err-msg { color: #fb7185; font-size: 0.9rem; margin-top: 8px; font-weight: 600; }
+  </style>
 </head>
 <body>
-<main>
-  <div>
-    <h1>Event planner console</h1>
-    <p class="lead">Start a plan and watch the agents work. They may ask you a question on the way.</p>
-    <section>
-      <form id="plan-form">
-        <label>Event topic<input id="topic" value="Marriage engagement" required minlength="3"></label>
-        <label>Description<textarea id="desc" required minlength="10">Beachside party with family and friends</textarea></label>
-        <div class="row">
-          <label>City<input id="city" value="Goa" required></label>
-          <label>Guests<input id="guests" type="number" value="300" min="1" max="50000" required></label>
+  <header>
+    <h1>✨ AI Event Management Planner</h1>
+    <p>Multi-Agent Venue Discovery • Smart Logistics • Custom Invitations</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <label>Event Topic</label>
+          <input id="event_topic" value="Tech Founders Meetup" />
         </div>
-        <label>Total budget in INR<input id="budget" type="number" value="1000000" min="5000" required></label>
-        <button class="primary" id="go" type="submit">Plan the event</button>
-        <p class="msg" id="form-msg" role="alert"></p>
-      </form>
-    </section>
-    <section id="ask" hidden>
-      <h2>The planner has a question</h2>
-      <p id="ask-text"></p>
-      <div class="opts" id="ask-opts"></div>
-      <form id="ask-form"><input id="ask-input" maxlength="500" placeholder="Type your answer" required aria-label="Your answer">
-        <button class="primary" type="submit">Send</button></form>
-      <p class="msg" id="ask-msg" role="alert"></p>
-    </section>
+        <div>
+          <label>City</label>
+          <input id="city" value="Lucknow" />
+        </div>
+        <div>
+          <label>Number of Guests</label>
+          <input id="guests" type="number" value="80" />
+        </div>
+        <div>
+          <label>Total Budget (₹)</label>
+          <input id="total_budget" type="number" value="120000" />
+        </div>
+      </div>
+      <div style="margin-top: 14px;">
+        <label>Event Description & Special Preferences</label>
+        <textarea id="description" rows="2">A vibrant evening networking meetup for startup founders with stage, projector, and dinner.</textarea>
+      </div>
+      <button class="btn" id="startBtn" onclick="startRun()">🚀 Plan My Event</button>
+      <div id="formErr" class="err-msg"></div>
+    </div>
+
+    <div class="card" id="liveSection" style="display:none;">
+      <div class="status-bar">
+        <div><strong id="stepLabel">Initializing agents...</strong> <span id="runIdTxt" style="color:var(--muted); font-size:0.82rem;"></span></div>
+        <span id="statusBadge" class="badge">queued</span>
+      </div>
+
+      <div class="hitl-box" id="hitlBox" style="margin-top: 16px;">
+        <h3>🙋 Agent Needs Your Input</h3>
+        <p id="qText" style="margin-bottom: 10px;"></p>
+        <div class="chip-row" id="qOptions"></div>
+        <div style="display:flex; gap:10px; margin-top:8px;">
+          <input id="ansInput" placeholder="Type your answer here..." />
+          <button class="btn" style="margin-top:0;" onclick="submitAnswer()">Send</button>
+        </div>
+        <div id="ansErr" class="err-msg"></div>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <label>🧠 Live Agent Thinking & Tool Activity</label>
+        <div class="thought-box" id="thoughtBox">Waiting for agent thoughts...</div>
+      </div>
+    </div>
+
+    <div id="resultsArea" style="display:grid; gap:18px;"></div>
   </div>
+  <script>
+    let currentRunId = null;
+    let currentQId = null;
+    let evtSource = null;
 
-  <div>
-    <section><h2>Progress</h2><ul class="steps" id="steps"></ul><p class="muted" id="status">Nothing running yet.</p></section>
-    <section><h2>What the agents are thinking</h2><div id="think" aria-live="polite"><span class="muted">Thoughts appear here while an agent works.</span></div></section>
-    <section><h2>Tool activity</h2><ul class="tools" id="tools"><li class="muted">No tool calls yet.</li></ul></section>
-    <section id="plan" hidden><h2>Plan</h2><div id="cards"></div><p class="muted" id="usage"></p></section>
-  </div>
-</main>
+    async function startRun() {
+      const btn = document.getElementById("startBtn");
+      const err = document.getElementById("formErr");
+      err.textContent = "";
+      btn.disabled = true;
 
-<script>
-const $ = (s) => document.querySelector(s);
-const el = (tag, text, cls) => { const n = document.createElement(tag); if (text != null) n.textContent = text; if (cls) n.className = cls; return n; };
-const NAMES = { venue: "Venue coordinator", logistics: "Logistics manager", marketing: "Marketing agent" };
-const inr = (n) => typeof n === "number" ? "₹" + n.toLocaleString("en-IN") : String(n ?? "");
-let es = null, runId = null, question = null, thinkStage = null, thinkBlock = null, started = false;
+      const payload = {
+        event_topic: document.getElementById("event_topic").value,
+        city: document.getElementById("city").value,
+        guests: parseInt(document.getElementById("guests").value || "0", 10),
+        total_budget: parseInt(document.getElementById("total_budget").value || "0", 10),
+        description: document.getElementById("description").value
+      };
 
-function setStatus(t) { $("#status").textContent = t; }
-function resetUi() {
-  $("#steps").replaceChildren(); $("#think").replaceChildren(); $("#tools").replaceChildren();
-  $("#cards").replaceChildren(); $("#plan").hidden = true; $("#usage").textContent = ""; $("#ask").hidden = true;
-  thinkStage = thinkBlock = question = null; started = false;
-}
-function step(key, label, state) {
-  let li = $("#step-" + key);
-  if (!li) { li = el("li", label); li.id = "step-" + key; $("#steps").append(li); }
-  li.className = state;
-}
-function think(stage, delta) {
-  const box = $("#think"); box.classList.add("live");
-  const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
-  if (stage !== thinkStage || !thinkBlock) {
-    thinkStage = stage; box.append(el("h4", NAMES[stage] || stage)); thinkBlock = el("div", "", "block"); box.append(thinkBlock);
-  }
-  thinkBlock.append(document.createTextNode(delta));
-  if (atEnd) box.scrollTop = box.scrollHeight;
-}
-function tool(ev, kind) {
-  const list = $("#tools"); if (!started) { list.replaceChildren(); started = true; }
-  const d = ev.data;
-  if (kind === "start") { const li = el("li", `${d.tool}: ${d.args}`); li.dataset.key = d.stage + d.tool; list.append(li); }
-  else {
-    const li = [...list.children].reverse().find((n) => n.dataset.key === d.stage + d.tool && !n.dataset.done) || list.appendChild(el("li", d.tool));
-    li.dataset.done = "1";
-    if (kind === "error") { li.classList.add("err"); li.append(` (failed: ${d.error})`); }
-    else li.append(" (done)");
-  }
-  list.scrollTop = list.scrollHeight;
-}
-function card(title, rows) {
-  const dl = el("dl"); for (const [k, v] of rows) { if (v == null || v === "") continue; dl.append(el("dt", k), el("dd", Array.isArray(v) ? v.join("\n") : String(v))); }
-  const wrap = el("div"); wrap.style.marginBottom = "16px"; wrap.append(el("h3", title), dl); wrap.querySelector("h3").style.cssText = "font-size:14px;margin:0 0 6px";
-  return wrap;
-}
-function renderStage(stage, d) {
-  if (!d) return; $("#plan").hidden = false;
-  let w = $("#card-" + stage); const old = w;
-  if (stage === "venue") w = card("Venue", [["Name", d.venue_name], ["Address", d.address], ["Capacity", d.capacity], ["Cost", inr(d.estimated_cost)],
-      ["In-house catering", d.has_inhouse_catering ? "Yes" : "No"], ["Facilities", d.included_facilities]]);
-  if (stage === "logistics") w = card("Logistics", [["Within budget", d.is_within_budget ? "Yes" : "No"], ["Menu", d.catering_menu_summary], ["Caterer", d.catering_vendor],
-      ["Equipment to add", d.equipment_list], ["Extra cost", inr(d.estimated_logistics_cost)], ["Feedback", d.negotiation_feedback]]);
-  if (stage === "marketing") w = card("Invitation and posts", [["Audience", d.target_audience], ["Invitation", d.invitation_message], ["Posts", d.social_media_posts]]);
-  w.id = "card-" + stage; old ? old.replaceWith(w) : $("#cards").append(w);
-}
-function showQuestion(q) {
-  question = q; $("#ask").hidden = false; $("#ask-text").textContent = q.text; $("#ask-msg").textContent = ""; $("#ask-input").value = "";
-  const box = $("#ask-opts"); box.replaceChildren();
-  for (const o of q.options || []) { const b = el("button", o); b.type = "button"; b.onclick = () => sendAnswer(o); box.append(b); }
-  $("#ask-input").focus();
-}
-async function sendAnswer(text) {
-  if (!question) return;
-  const r = await fetch(`/runs/${runId}/answer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question_id: question.id, answer: text }) });
-  if (r.ok) { $("#ask").hidden = true; question = null; return; }
-  const d = await r.json().catch(() => ({})); $("#ask-msg").textContent = d.detail || "Could not send the answer.";
-}
-function handle(ev) {
-  const d = ev.data;
-  switch (ev.type) {
-    case "queued": setStatus(d.position ? `Waiting for ${d.position} other plan(s) to finish.` : "Starting."); break;
-    case "status": if (d.status === "running") setStatus("Working on your plan."); if (d.status === "waiting_for_input") setStatus("Waiting for your answer."); break;
-    case "step": step(d.step, d.label, d.status); break;
-    case "thinking": think(d.stage, d.delta); break;
-    case "tool_started": tool(ev, "start"); break;
-    case "tool_finished": tool(ev, "done"); break;
-    case "tool_error": tool(ev, "error"); break;
-    case "stage_result": renderStage(d.stage, d.data); break;
-    case "question": showQuestion(d); break;
-    case "answer_received": case "question_timeout": $("#ask").hidden = true; question = null; break;
-    case "info": setStatus(d.message); break;
-    case "usage": {
-      const t = d.seconds_to || {}, parts = [`Finished in ${d.seconds_total} s.`];
-      if (t.first_thought != null) parts.push(`The first thought appeared after ${t.first_thought} s.`);
-      if (t.first_result != null) parts.push(`The venue was ready after ${t.first_result} s.`);
-      parts.push(`${(d.total_tokens || 0).toLocaleString("en-IN")} tokens used.`); $("#usage").textContent = parts.join(" "); break;
+      try {
+        const res = await fetch("/runs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to start run");
+
+        currentRunId = data.run_id;
+        document.getElementById("liveSection").style.display = "block";
+        document.getElementById("resultsArea").innerHTML = "";
+        document.getElementById("thoughtBox").textContent = "";
+        document.getElementById("runIdTxt").textContent = `(Run ID: ${currentRunId})`;
+        connectSSE(currentRunId);
+      } catch (e) {
+        err.textContent = e.message;
+        btn.disabled = false;
+      }
     }
-    case "error": setStatus(d.message || "The planner failed."); break;
-    case "done": $("#think").classList.remove("live"); es.close(); $("#go").disabled = false; if (d.ok) setStatus("Plan ready."); break;
-  }
-}
-$("#plan-form").addEventListener("submit", async (e) => {
-  e.preventDefault(); $("#form-msg").textContent = ""; resetUi(); $("#go").disabled = true;
-  const body = { event_topic: $("#topic").value, description: $("#desc").value, city: $("#city").value,
-                 guests: Number($("#guests").value), total_budget: Number($("#budget").value) };
-  const r = await fetch("/runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) {
-    const d = j.detail; $("#form-msg").textContent = Array.isArray(d) ? d.map((x) => `${(x.loc || []).slice(-1)[0]}: ${x.msg}`).join("; ") : (d || "Request failed.");
-    $("#go").disabled = false; return;
-  }
-  runId = j.run_id; setStatus("Starting."); es?.close(); es = new EventSource(j.events_url);
-  es.onmessage = (m) => handle(JSON.parse(m.data));
-  es.onerror = () => { if (es.readyState === EventSource.CLOSED) { setStatus("Lost the connection to the server."); $("#go").disabled = false; } };
-});
-$("#ask-form").addEventListener("submit", (e) => { e.preventDefault(); sendAnswer($("#ask-input").value.trim()); });
-</script>
+
+    function connectSSE(runId) {
+      if (evtSource) evtSource.close();
+      evtSource = new EventSource(`/runs/${runId}/events`);
+      evtSource.onmessage = (e) => handleEvent(JSON.parse(e.data));
+    }
+
+    function handleEvent(ev) {
+      const tb = document.getElementById("thoughtBox");
+      if (ev.type === "status") {
+        const b = document.getElementById("statusBadge");
+        b.textContent = ev.data.status;
+        b.className = `badge ${ev.data.status}`;
+      } else if (ev.type === "step" || ev.type === "stage_started") {
+        document.getElementById("stepLabel").textContent = ev.data.label || `Running ${ev.data.role}...`;
+      } else if (ev.type === "thinking") {
+        tb.textContent += ev.data.delta;
+        tb.scrollTop = tb.scrollHeight;
+      } else if (ev.type === "tool_started") {
+        tb.textContent += `\n🔧 [Tool: ${ev.data.tool}] ${ev.data.args}\n`;
+        tb.scrollTop = tb.scrollHeight;
+      } else if (ev.type === "question") {
+        currentQId = ev.data.id;
+        document.getElementById("hitlBox").style.display = "block";
+        document.getElementById("qText").textContent = ev.data.text;
+        document.getElementById("ansErr").textContent = "";
+        const optDiv = document.getElementById("qOptions");
+        optDiv.innerHTML = "";
+        (ev.data.options || []).forEach(opt => {
+          const c = document.createElement("button");
+          c.className = "chip";
+          c.textContent = opt;
+          c.onclick = () => { document.getElementById("ansInput").value = opt; submitAnswer(); };
+          optDiv.appendChild(c);
+        });
+      } else if (ev.type === "answer_received") {
+        document.getElementById("hitlBox").style.display = "none";
+      } else if (ev.type === "stage_result") {
+        renderStage(ev.data.stage, ev.data.data);
+      } else if (ev.type === "error") {
+        document.getElementById("stepLabel").textContent = ev.data.message || "Error occurred";
+        document.getElementById("startBtn").disabled = false;
+      } else if (ev.type === "done") {
+        document.getElementById("stepLabel").textContent = ev.data.ok ? "🎉 Event Plan Ready!" : "❌ Run Failed";
+        document.getElementById("startBtn").disabled = false;
+        evtSource.close();
+      }
+    }
+
+    async function submitAnswer() {
+      const ans = document.getElementById("ansInput").value.trim();
+      const err = document.getElementById("ansErr");
+      err.textContent = "";
+      if (!ans) return;
+      try {
+        const res = await fetch(`/runs/${currentRunId}/answer`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question_id: currentQId, answer: ans })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Invalid answer");
+        document.getElementById("ansInput").value = "";
+        document.getElementById("hitlBox").style.display = "none";
+      } catch (e) {
+        err.textContent = e.message;
+      }
+    }
+
+    function renderStage(stage, d) {
+      if (!d) return;
+      const area = document.getElementById("resultsArea");
+      let existing = document.getElementById(`card-${stage}`);
+      if (!existing) {
+        existing = document.createElement("div");
+        existing.id = `card-${stage}`;
+        existing.className = `card stage-card stage-${stage}`;
+        area.appendChild(existing);
+      }
+
+      if (stage === "venue") {
+        const hasUrl = d.website_url && d.website_url.startsWith("http");
+        existing.innerHTML = `
+          <div class="stage-title" style="color:var(--venue-accent)">🏨 Selected Venue</div>
+          <h3>${d.venue_name}</h3>
+          <p style="color:var(--muted); margin:4px 0 10px;">📍 ${d.address}</p>
+          <div>
+            <span class="pill">👥 Capacity: ${d.capacity}</span>
+            <span class="pill">💰 Est. Cost: ₹${d.estimated_cost}</span>
+            <span class="pill">🍽️ In-house Catering: ${d.has_inhouse_catering ? "Yes" : "No"}</span>
+          </div>
+          <div style="margin-top:8px;">
+            ${(d.included_facilities || []).map(f => `<span class="pill">✅ ${f}</span>`).join("")}
+          </div>
+          <div>
+            ${hasUrl ? `<a class="link-btn" href="${d.website_url}" target="_blank">🌐 Visit Hotel Website</a>` : `<span class="pill">🌐 Website: ${d.website_url || "Not listed"}</span>`}
+            <span class="contact-pill">📞 Contact: ${d.contact_info || "Not listed"}</span>
+          </div>
+        `;
+      } else if (stage === "logistics") {
+        existing.innerHTML = `
+          <div class="stage-title" style="color:var(--logistics-accent)">🚚 Logistics & Catering Plan</div>
+          <p><strong>Caterer:</strong> ${d.catering_vendor} — ${d.catering_menu_summary}</p>
+          <p style="margin-top:6px;"><strong>Additional Logistics Cost:</strong> ₹${d.estimated_logistics_cost}</p>
+          <div style="margin-top:8px;">
+            ${(d.equipment_list || []).map(eq => `<span class="pill">🎛️ ${eq}</span>`).join("")}
+          </div>
+        `;
+      } else if (stage === "marketing") {
+        existing.innerHTML = `
+          <div class="stage-title" style="color:var(--marketing-accent)">📣 Marketing & Official Invitation</div>
+          <p><strong>Target Audience:</strong> ${d.target_audience}</p>
+          <div class="invite-box">${d.invitation_message}</div>
+          <div style="margin-top:10px;">
+            ${(d.social_media_posts || []).map(p => `<div class="pill" style="display:block; margin-top:6px;">📱 ${p}</div>`).join("")}
+          </div>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>

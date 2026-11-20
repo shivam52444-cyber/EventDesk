@@ -26,6 +26,17 @@ def    run_event_planner():
     
     print("\n=== FINAL EVENT PLAN ===")
     print_formatted_plan(result)
+import asyncio
+from flow import EventManagementFlow
 
 if __name__ == "__main__":
-    run_event_planner()
+    flow = EventManagementFlow()
+    result = asyncio.run(flow.kickoff_async(inputs={
+        "event_topic": "Tech Meetup",
+        "description": "AI developers meetup in Lucknow",
+        "city": "Lucknow",
+        "guests": 50,
+        "total_budget": 50000
+    }))
+    print(result)
+

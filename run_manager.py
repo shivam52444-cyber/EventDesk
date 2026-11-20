@@ -349,22 +349,24 @@ def install_hooks() -> None:
         if _HOOKED:
             return
         from crewai import Crew
-        orig = Crew.kickoff
+        orig_sync = Crew.kickoff
+        orig_async = Crew.akickoff
 
-        def wrapper(self, *args, **kwargs):
+        def _on_start(self):
             run = _ACTIVE_RUN_VAR.get()
             if run is None:
-                return orig(self, *args, **kwargs)
+                return None, None, None
             role = self.agents[0].role if getattr(self, "agents", None) else "?"
             stage = STAGES.get(role, role)
             run.stage = stage
             run.publish("stage_started", {"stage": stage, "role": role})
-            t0 = time.perf_counter()
-            try:
-                out = orig(self, *args, **kwargs)
-            except BaseException as e:
-                run.publish("stage_failed", {"stage": stage, "error": f"{type(e).__name__}: {e}"[:300]})
-                raise
+            return run, stage, time.perf_counter()
+
+        def _on_end(run, stage, t0, out):
+            if run is None:
+                return
+            if hasattr(out, "result") and not hasattr(out, "pydantic"):
+                out = out.result
             p = getattr(out, "pydantic", None)
             data = p.model_dump() if p is not None and hasattr(p, "model_dump") else None
             u = getattr(out, "token_usage", None)
@@ -373,9 +375,31 @@ def install_hooks() -> None:
                 get = (lambda k: u.get(k, 0)) if isinstance(u, dict) else (lambda k: getattr(u, k, 0))
                 tokens = {k: get(k) for k in ("total_tokens", "prompt_tokens", "completion_tokens")}
             run.record_stage(stage, data, tokens, time.perf_counter() - t0)
+
+        def sync_wrapper(self, *args, **kwargs):
+            run, stage, t0 = _on_start(self)
+            try:
+                out = orig_sync(self, *args, **kwargs)
+            except BaseException as e:
+                if run:
+                    run.publish("stage_failed", {"stage": stage, "error": f"{type(e).__name__}: {e}"[:300]})
+                raise
+            _on_end(run, stage, t0, out)
             return out
 
-        Crew.kickoff = wrapper
+        async def async_wrapper(self, *args, **kwargs):
+            run, stage, t0 = _on_start(self)
+            try:
+                out = await orig_async(self, *args, **kwargs)
+            except BaseException as e:
+                if run:
+                    run.publish("stage_failed", {"stage": stage, "error": f"{type(e).__name__}: {e}"[:300]})
+                raise
+            _on_end(run, stage, t0, out)
+            return out
+
+        Crew.kickoff = sync_wrapper
+        Crew.akickoff = async_wrapper
         _HOOKED = True
 
 
@@ -388,7 +412,7 @@ def _public_error(e: BaseException) -> dict:
     return {"code": "planner_failed", "message": "The planner failed while building your plan. Please try again."}
 
 
-def execute(run: Run) -> None:
+async def execute_async(run: Run) -> None:
     token = _ACTIVE_RUN_VAR.set(run)
     hitl.bind(run.session, run.id)
     run.t0 = time.perf_counter()
@@ -399,23 +423,22 @@ def execute(run: Run) -> None:
         from flow import EventManagementFlow
         flow = EventManagementFlow()
         flow_inputs = {**run.inputs, "run_id": run.id}
-        stream = None
+
+        # CrewAI 1.x mein stream_events() sync generator hota hai; thread mein bridge chala kar async result lein
         if hasattr(flow, "stream_events"):
-            try:
-                stream = flow.stream_events(inputs=flow_inputs)
-            except (AttributeError, NotImplementedError, TypeError) as e:
-                log.warning("stream_events unavailable (%s); falling back to kickoff()", e)
-        if stream is not None:
-            with stream:
-                for frame in stream:
-                    try:
-                        bridge.handle(frame)
-                    except Exception:
-                        log.exception("frame bridge error (run %s)", run.id)
-            result = stream.result
+            def _run_stream():
+                with flow.stream_events(inputs=flow_inputs) as stream:
+                    for frame in stream:
+                        try:
+                            bridge.handle(frame)
+                        except Exception:
+                            log.exception("frame bridge error (run %s)", run.id)
+                    return stream.result
+
+            result = await asyncio.to_thread(_run_stream)
         else:
-            run.publish("info", {"message": "This CrewAI version has no stream_events; showing stage-level progress only."})
-            result = flow.kickoff(inputs=flow_inputs)
+            result = await flow.kickoff_async(inputs=flow_inputs)
+
         bridge.batch.flush()
         if not isinstance(result, dict):
             raise RuntimeError(f"flow returned {type(result).__name__}, expected a plan dict")
@@ -429,14 +452,11 @@ def execute(run: Run) -> None:
         _ACTIVE_RUN_VAR.reset(token)
 
 
-EXECUTOR = ThreadPoolExecutor(max_workers=10, thread_name_prefix="planner")
-
-
 def submit(inputs: dict) -> Run:
     run = store.create(inputs)
     run.set_status("queued")
     run.publish("queued", {"position": store.unfinished_before(run)})
-    EXECUTOR.submit(execute, run)
+    asyncio.create_task(execute_async(run))
     return run
 
 

@@ -3,12 +3,22 @@ from crewai import Agent
 from model import venue_llm, logistics_llm, marketing_llm
 from tool import create_ask_human_tool
 
+from crewai_tools import ScrapeWebsiteTool, SerperDevTool
+from crewai import Agent
+from model import venue_llm, logistics_llm, marketing_llm
+from tool import FeasibilityCheckTool, create_ask_human_tool
+
+
 def create_venue_coordinator(run_id: str, qa_log: list[str]) -> Agent:
     return Agent(
         role="Venue Coordinator",
-        goal="Find the best venue matching the event topic, guests, and budget.",
-        backstory="Expert venue planner who checks capacity, pricing, and whether in-house catering is included.",
+        goal="Verify geographic feasibility first, then find the best real venue matching the event topic, guests, and budget.",
+        backstory=(
+            "Strict, fact-based venue planner. You NEVER guess or invent fake venues. "
+            "You always run 'Verify Location & Venue Feasibility' first to check if the requested feature exists in that city."
+        ),
         tools=[
+            FeasibilityCheckTool(),  # <-- Fresh instance per run, max_usage_count=1, clear schema!
             SerperDevTool(n_results=2, max_usage_count=3),
             ScrapeWebsiteTool(max_usage_count=2),
             create_ask_human_tool(run_id, qa_log)
@@ -17,6 +27,7 @@ def create_venue_coordinator(run_id: str, qa_log: list[str]) -> Agent:
         llm=venue_llm,
         verbose=True
     )
+
 
 def create_logistics_manager(run_id: str, qa_log: list[str]) -> Agent:
     return Agent(
