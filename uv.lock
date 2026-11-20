@@ -1342,7 +1342,9 @@ dependencies = [
     { name = "crewai", extra = ["google-genai", "litellm"] },
     { name = "crewai-tools" },
     { name = "deepeval" },
+    { name = "fastapi" },
     { name = "openinference-instrumentation-crewai" },
+    { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.metadata]
@@ -1351,7 +1353,9 @@ requires-dist = [
     { name = "crewai", extras = ["google-genai", "litellm"], specifier = ">=1.15.41" },
     { name = "crewai-tools", specifier = ">=1.15.41" },
     { name = "deepeval" },
+    { name = "fastapi", specifier = ">=0.165.0" },
     { name = "openinference-instrumentation-crewai" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.54.0" },
 ]
 
 [[package]]

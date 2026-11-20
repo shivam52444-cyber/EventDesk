@@ -1,6 +1,6 @@
 from crewai import Crew
 from crewai.flow.flow import Flow, start, listen, router, or_
-
+import hitl
 from crewai.flow import (
     Flow,
     human_feedback,
@@ -13,29 +13,31 @@ from crewai.flow.flow import start, listen, router, or_
 from agent import venue_coordinator, logistics_manager, marketing_agent
 from task import venue_task, logistics_task, marketing_task
 from sstate import EventState
-
+from tool import get_qa_summary, reset_qa_log
 class APIFeedbackProvider(HumanFeedbackProvider):
     def request_feedback(self, context, flow):
         raise HumanFeedbackPending(context=context)
 
 class EventManagementFlow(Flow[EventState]):
-
     @start()
     @listen("renegotiate_venue")
     def find_venue_step(self):
+        if self.state.negotiation_attempts == 0:
+            reset_qa_log()  # Naye run ki shuruat mein purana log saaf karein
         self.state.negotiation_attempts += 1
         
         crew = Crew(agents=[venue_coordinator], tasks=[venue_task], verbose=True)
-        # Yahan state ki values placeholders mein bhej dein:
         res = crew.kickoff(inputs={
             "city": self.state.city,
             "event_topic": self.state.event_topic,
             "description": self.state.description,
             "guests": self.state.guests,
             "total_budget": self.state.total_budget,
-            "venue_feedback": self.state.venue_feedback
+            "venue_feedback": self.state.venue_feedback,
+            "previous_human_answers": get_qa_summary()  # <-- Renegotiation mein purane answers milenge
         })
         self.state.venue_info = res.pydantic.model_dump()
+        self.state.human_qa_history = get_qa_summary().splitlines()
 
     @router(find_venue_step)
     def check_catering_router(self):
@@ -45,18 +47,14 @@ class EventManagementFlow(Flow[EventState]):
         return "need_human_catering_input"
 
     @listen("need_human_catering_input")
-    @human_feedback(
-        message="Is venue mein in-house catering nahi hai. Bahar se kaisa khana (Veg/Non-Veg/Buffet) mangwana chahte hain?",
-    )
     def ask_human_catering(self):
-        return f"Selected Venue: {self.state.venue_info.get('venue_name')}"
+        self.state.catering_preference = hitl.ask(
+            f"{self.state.venue_info.get('venue_name')} doesn't include catering. "
+            "What kind of food should we arrange (veg / non-veg / buffet)?",
+            channel="flow", kind="choice",
+            options=["Veg buffet", "Non-veg buffet", "Veg and non-veg buffet", "Jain"])
 
-    @listen(ask_human_catering)
-    def save_human_catering(self, result: HumanFeedbackResult):
-        self.state.catering_preference = result.feedback
-        return "proceed_to_logistics"
-
-    @listen(or_("proceed_to_logistics", save_human_catering))
+    @listen(or_("proceed_to_logistics", ask_human_catering))
     def run_logistics_step(self):
         venue_cost = self.state.venue_info.get("estimated_cost", 0)
         remaining_budget = self.state.total_budget - venue_cost
@@ -68,6 +66,8 @@ class EventManagementFlow(Flow[EventState]):
             "has_inhouse_catering": self.state.venue_info.get("has_inhouse_catering"),
             "catering_preference": self.state.catering_preference,
             "remaining_budget": remaining_budget
+            "previous_human_answers": get_qa_summary()
+
         })
         self.state.logistics_info = res.pydantic.model_dump()
 
@@ -92,6 +92,7 @@ class EventManagementFlow(Flow[EventState]):
             "venue_name": self.state.venue_info.get("venue_name"),
             "venue_address": self.state.venue_info.get("address"),
             "guests": self.state.guests
+            "previous_human_answers": get_qa_summary()
         })
         self.state.marketing_info = res.pydantic.model_dump()
         

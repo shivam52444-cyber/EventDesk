@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event planner console</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --surface: #ffffff; --ink: #1b2430; --muted: #5b6675; --line: #d9dee6;
+    --accent: #0f6b6b; --accent-ink: #ffffff; --warn: #a43d1f; --ok: #1f7a46;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --serif: ui-serif, Georgia, "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #12161c; --surface: #1a2028; --ink: #e6eaf0; --muted: #98a3b3; --line: #2b3440;
+            --accent: #4cc2c2; --accent-ink: #0b1b1b; --warn: #ff9b7a; --ok: #6fd29a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 20px;
+         grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 800px) { main { grid-template-columns: minmax(0, 1fr); } }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  p.lead { margin: 0 0 16px; color: var(--muted); }
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  label { display: block; margin: 0 0 12px; font-weight: 600; }
+  input, textarea { display: block; width: 100%; margin-top: 4px; padding: 8px 10px; font: inherit; color: inherit;
+                    background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+  textarea { min-height: 70px; resize: vertical; }
+  button { font: inherit; min-height: 40px; padding: 0 16px; border-radius: 6px; border: 1px solid var(--line);
+           background: var(--surface); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .msg { color: var(--warn); margin: 8px 0 0; min-height: 1.4em; }
+  .muted { color: var(--muted); }
+  ul.steps { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  ul.steps li { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+  ul.steps li.started { border-color: var(--accent); color: var(--ink); }
+  ul.steps li.finished { border-color: var(--ok); color: var(--ok); }
+  ul.steps li.failed { border-color: var(--warn); color: var(--warn); }
+  #think { max-height: 260px; overflow: auto; font-family: var(--serif); font-size: 16px; line-height: 1.6; }
+  #think h4 { margin: 12px 0 2px; font: 600 13px var(--sans); color: var(--muted); }
+  #think h4:first-child { margin-top: 0; }
+  #think .block { white-space: pre-wrap; }
+  #think.live .block:last-child::after { content: ""; display: inline-block; width: 7px; height: 1em; margin-left: 2px;
+        vertical-align: text-bottom; background: var(--accent); animation: blink 1s steps(2) infinite; }
+  @media (prefers-reduced-motion: reduce) { #think.live .block:last-child::after { animation: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
+  ul.tools { list-style: none; margin: 0; padding: 0; max-height: 150px; overflow: auto; }
+  ul.tools li { padding: 3px 0; border-bottom: 1px solid var(--line); word-break: break-word; }
+  ul.tools li.err { color: var(--warn); }
+  dl { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; margin: 0; }
+  dt { color: var(--muted); } dd { margin: 0; white-space: pre-wrap; word-break: break-word; }
+  #ask { border-color: var(--accent); }
+  #ask .opts { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  #ask form { display: flex; gap: 8px; } #ask form input { margin: 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Event planner console</h1>
+    <p class="lead">Start a plan and watch the agents work. They may ask you a question on the way.</p>
+    <section>
+      <form id="plan-form">
+        <label>Event topic<input id="topic" value="Marriage engagement" required minlength="3"></label>
+        <label>Description<textarea id="desc" required minlength="10">Beachside party with family and friends</textarea></label>
+        <div class="row">
+          <label>City<input id="city" value="Goa" required></label>
+          <label>Guests<input id="guests" type="number" value="300" min="1" max="50000" required></label>
+        </div>
+        <label>Total budget in INR<input id="budget" type="number" value="1000000" min="5000" required></label>
+        <button class="primary" id="go" type="submit">Plan the event</button>
+        <p class="msg" id="form-msg" role="alert"></p>
+      </form>
+    </section>
+    <section id="ask" hidden>
+      <h2>The planner has a question</h2>
+      <p id="ask-text"></p>
+      <div class="opts" id="ask-opts"></div>
+      <form id="ask-form"><input id="ask-input" maxlength="500" placeholder="Type your answer" required aria-label="Your answer">
+        <button class="primary" type="submit">Send</button></form>
+      <p class="msg" id="ask-msg" role="alert"></p>
+    </section>
+  </div>
+
+  <div>
+    <section><h2>Progress</h2><ul class="steps" id="steps"></ul><p class="muted" id="status">Nothing running yet.</p></section>
+    <section><h2>What the agents are thinking</h2><div id="think" aria-live="polite"><span class="muted">Thoughts appear here while an agent works.</span></div></section>
+    <section><h2>Tool activity</h2><ul class="tools" id="tools"><li class="muted">No tool calls yet.</li></ul></section>
+    <section id="plan" hidden><h2>Plan</h2><div id="cards"></div><p class="muted" id="usage"></p></section>
+  </div>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const el = (tag, text, cls) => { const n = document.createElement(tag); if (text != null) n.textContent = text; if (cls) n.className = cls; return n; };
+const NAMES = { venue: "Venue coordinator", logistics: "Logistics manager", marketing: "Marketing agent" };
+const inr = (n) => typeof n === "number" ? "₹" + n.toLocaleString("en-IN") : String(n ?? "");
+let es = null, runId = null, question = null, thinkStage = null, thinkBlock = null, started = false;
+
+function setStatus(t) { $("#status").textContent = t; }
+function resetUi() {
+  $("#steps").replaceChildren(); $("#think").replaceChildren(); $("#tools").replaceChildren();
+  $("#cards").replaceChildren(); $("#plan").hidden = true; $("#usage").textContent = ""; $("#ask").hidden = true;
+  thinkStage = thinkBlock = question = null; started = false;
+}
+function step(key, label, state) {
+  let li = $("#step-" + key);
+  if (!li) { li = el("li", label); li.id = "step-" + key; $("#steps").append(li); }
+  li.className = state;
+}
+function think(stage, delta) {
+  const box = $("#think"); box.classList.add("live");
+  const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  if (stage !== thinkStage || !thinkBlock) {
+    thinkStage = stage; box.append(el("h4", NAMES[stage] || stage)); thinkBlock = el("div", "", "block"); box.append(thinkBlock);
+  }
+  thinkBlock.append(document.createTextNode(delta));
+  if (atEnd) box.scrollTop = box.scrollHeight;
+}
+function tool(ev, kind) {
+  const list = $("#tools"); if (!started) { list.replaceChildren(); started = true; }
+  const d = ev.data;
+  if (kind === "start") { const li = el("li", `${d.tool}: ${d.args}`); li.dataset.key = d.stage + d.tool; list.append(li); }
+  else {
+    const li = [...list.children].reverse().find((n) => n.dataset.key === d.stage + d.tool && !n.dataset.done) || list.appendChild(el("li", d.tool));
+    li.dataset.done = "1";
+    if (kind === "error") { li.classList.add("err"); li.append(` (failed: ${d.error})`); }
+    else li.append(" (done)");
+  }
+  list.scrollTop = list.scrollHeight;
+}
+function card(title, rows) {
+  const dl = el("dl"); for (const [k, v] of rows) { if (v == null || v === "") continue; dl.append(el("dt", k), el("dd", Array.isArray(v) ? v.join("\n") : String(v))); }
+  const wrap = el("div"); wrap.style.marginBottom = "16px"; wrap.append(el("h3", title), dl); wrap.querySelector("h3").style.cssText = "font-size:14px;margin:0 0 6px";
+  return wrap;
+}
+function renderStage(stage, d) {
+  if (!d) return; $("#plan").hidden = false;
+  let w = $("#card-" + stage); const old = w;
+  if (stage === "venue") w = card("Venue", [["Name", d.venue_name], ["Address", d.address], ["Capacity", d.capacity], ["Cost", inr(d.estimated_cost)],
+      ["In-house catering", d.has_inhouse_catering ? "Yes" : "No"], ["Facilities", d.included_facilities]]);
+  if (stage === "logistics") w = card("Logistics", [["Within budget", d.is_within_budget ? "Yes" : "No"], ["Menu", d.catering_menu_summary], ["Caterer", d.catering_vendor],
+      ["Equipment to add", d.equipment_list], ["Extra cost", inr(d.estimated_logistics_cost)], ["Feedback", d.negotiation_feedback]]);
+  if (stage === "marketing") w = card("Invitation and posts", [["Audience", d.target_audience], ["Invitation", d.invitation_message], ["Posts", d.social_media_posts]]);
+  w.id = "card-" + stage; old ? old.replaceWith(w) : $("#cards").append(w);
+}
+function showQuestion(q) {
+  question = q; $("#ask").hidden = false; $("#ask-text").textContent = q.text; $("#ask-msg").textContent = ""; $("#ask-input").value = "";
+  const box = $("#ask-opts"); box.replaceChildren();
+  for (const o of q.options || []) { const b = el("button", o); b.type = "button"; b.onclick = () => sendAnswer(o); box.append(b); }
+  $("#ask-input").focus();
+}
+async function sendAnswer(text) {
+  if (!question) return;
+  const r = await fetch(`/runs/${runId}/answer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question_id: question.id, answer: text }) });
+  if (r.ok) { $("#ask").hidden = true; question = null; return; }
+  const d = await r.json().catch(() => ({})); $("#ask-msg").textContent = d.detail || "Could not send the answer.";
+}
+function handle(ev) {
+  const d = ev.data;
+  switch (ev.type) {
+    case "queued": setStatus(d.position ? `Waiting for ${d.position} other plan(s) to finish.` : "Starting."); break;
+    case "status": if (d.status === "running") setStatus("Working on your plan."); if (d.status === "waiting_for_input") setStatus("Waiting for your answer."); break;
+    case "step": step(d.step, d.label, d.status); break;
+    case "thinking": think(d.stage, d.delta); break;
+    case "tool_started": tool(ev, "start"); break;
+    case "tool_finished": tool(ev, "done"); break;
+    case "tool_error": tool(ev, "error"); break;
+    case "stage_result": renderStage(d.stage, d.data); break;
+    case "question": showQuestion(d); break;
+    case "answer_received": case "question_timeout": $("#ask").hidden = true; question = null; break;
+    case "info": setStatus(d.message); break;
+    case "usage": {
+      const t = d.seconds_to || {}, parts = [`Finished in ${d.seconds_total} s.`];
+      if (t.first_thought != null) parts.push(`The first thought appeared after ${t.first_thought} s.`);
+      if (t.first_result != null) parts.push(`The venue was ready after ${t.first_result} s.`);
+      parts.push(`${(d.total_tokens || 0).toLocaleString("en-IN")} tokens used.`); $("#usage").textContent = parts.join(" "); break;
+    }
+    case "error": setStatus(d.message || "The planner failed."); break;
+    case "done": $("#think").classList.remove("live"); es.close(); $("#go").disabled = false; if (d.ok) setStatus("Plan ready."); break;
+  }
+}
+$("#plan-form").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("#form-msg").textContent = ""; resetUi(); $("#go").disabled = true;
+  const body = { event_topic: $("#topic").value, description: $("#desc").value, city: $("#city").value,
+                 guests: Number($("#guests").value), total_budget: Number($("#budget").value) };
+  const r = await fetch("/runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const d = j.detail; $("#form-msg").textContent = Array.isArray(d) ? d.map((x) => `${(x.loc || []).slice(-1)[0]}: ${x.msg}`).join("; ") : (d || "Request failed.");
+    $("#go").disabled = false; return;
+  }
+  runId = j.run_id; setStatus("Starting."); es?.close(); es = new EventSource(j.events_url);
+  es.onmessage = (m) => handle(JSON.parse(m.data));
+  es.onerror = () => { if (es.readyState === EventSource.CLOSED) { setStatus("Lost the connection to the server."); $("#go").disabled = false; } };
+});
+$("#ask-form").addEventListener("submit", (e) => { e.preventDefault(); sendAnswer($("#ask-input").value.trim()); });
+</script>
+</body>
+</html>

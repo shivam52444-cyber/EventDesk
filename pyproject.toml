@@ -10,4 +10,6 @@ dependencies = [
     "deepeval",
     "arize-phoenix",
     "openinference-instrumentation-crewai",
+    "fastapi>=0.165.0",
+    "uvicorn[standard]>=0.54.0",
 ]

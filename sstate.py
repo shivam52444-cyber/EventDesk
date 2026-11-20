@@ -32,7 +32,9 @@ class EventState(BaseModel):
     city: str = ""
     guests: int = 0
     total_budget: int = 0
-    
+    catering_preference: str = "Venue In-house Catering"
+    human_qa_history: List[str] = []  # <-- NAYA FIELD: Saare Q&A yahan save honge
+
     venue_feedback: str = (
         "Initial Guideline: If the venue INCLUDES in-house catering within its price, "
         "you may spend up to 75-80% of total_budget. If the venue DOES NOT include catering, "
