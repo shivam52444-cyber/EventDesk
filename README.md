@@ -6,9 +6,9 @@ An end-to-end, asynchronous **Multi-Agent Event Orchestration Platform** built w
 🌐 **Live Demo:** [http://13.48.10.11:8000/](http://13.48.10.11:8000/)
 
 ---
-
 ## 🏗️ System Architecture
 
+```text
 +-------------------------------------------------------------------------+
 
 |                        🌐 WEB UI (demo.html)                            |
@@ -61,6 +61,7 @@ An end-to-end, asynchronous **Multi-Agent Event Orchestration Platform** built w
 |               v                                                         |
 |   [4. Marketing Agent] (Generates Final Invite + Social Media Posts)    |
 +-------------------------------------------------------------------------+
+```
 
 
 ## 🚀 Key Engineering Highlights
