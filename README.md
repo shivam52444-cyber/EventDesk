@@ -1,6 +1,4 @@
-Yeh lijiye ek complete, portfolio-ready README.md jo aapke poore system architecture, multi-agent workflow, Redis LRU caching, multi-layer guardrails, DeepEval benchmark results, aur zero-SSH AWS EC2 deployment ko clearly document karta hai.
-Aap is poore Markdown ko seedha apne project ke README.md mein copy-paste karke GitHub par push kar sakte hain:
-markdown
+
 # ✨ AI Event Management Planner — Production Multi-Agent System
 
 An end-to-end, asynchronous **Multi-Agent Event Orchestration Platform** built with **CrewAI Flows**, **FastAPI (SSE Streaming)**, **Redis LRU Caching**, **SQLite Persistence**, **Lakera Guardrails**, and **DeepEval** — deployed on **AWS EC2** using least-privilege IAM & AWS Systems Manager (Zero-SSH).
@@ -11,48 +9,59 @@ An end-to-end, asynchronous **Multi-Agent Event Orchestration Platform** built w
 
 ## 🏗️ System Architecture
 
-```mermaid
-flowchart TD
-    UI["🌐 Web UI (demo.html) / REST Client"]
-    API["⚡ FastAPI Server (api.py)<br/>POST /runs • GET /runs/{id}/events (SSE) • POST /answer"]
-    
-    subgraph Security["🛡️ Multi-Layer Guardrails"]
-        PYD["Pydantic Schema Validators (sstate.py)<br/>Budget ≥ ₹5,000 • Guests 1–50,000 • Length Rules"]
-        REGEX["Local Regex Jailbreak Filter (gaurdrails.py)"]
-        LAKERA["Lakera Guard AI API (/v2/guard)"]
-        REDIS[("⚡ Redis LRU Cache<br/>maxmemory 100mb • allkeys-lru<br/>Caches Human Q&A (safe / blocked)")]
-    end
++-------------------------------------------------------------------------+
 
-    subgraph Orchestration["🤖 CrewAI Async Flow (flow.py)"]
-        FEAS["🔍 FeasibilityCheckTool (_arun)<br/>Live Google Search Reality Check"]
-        VC["🏨 Venue Coordinator Agent<br/>Finds Real Venues + Website & Contact"]
-        CR{"🍽️ Has In-House Catering?"}
-        HITL["🙋 Human-in-the-Loop (hitl.py)<br/>run_id Isolated Sessions + Shared Q&A History"]
-        LM["🚚 Logistics Manager Agent<br/>Catering + Missing AV/Equipment"]
-        BR{"💰 Within Remaining Budget?"}
-        MA["📣 Marketing & Comms Agent<br/>Final Invite + Social Media Posts"]
-    end
+|                        🌐 WEB UI (demo.html)                            |
+|   User submits event details  <--- Live SSE Stream --->  Stage Cards    |
++-----------------------------------+-------------------------------------+
+                                    |
+                                    v
++-------------------------------------------------------------------------+
 
-    DB[("💾 SQLite Database (event_planner.db)<br/>Run Snapshots & Past Plan History")]
+|                      ⚡ FASTAPI SERVER (api.py)                         |
+|   POST /runs  |  GET /runs/{id}/events (SSE)  |  POST /runs/{id}/answer |
++-----------------------------------+-------------------------------------+
+                                    |
+        +---------------------------+---------------------------+
 
-    UI -->|1. Submit Event| API
-    API --> PYD --> REGEX --> LAKERA
-    API <-->|Human Replies| REDIS
-    REDIS <-->|Cache Miss| REGEX
-    API -->|2. Kickoff Async Flow| FEAS --> VC
-    VC <-->|Missing Date/Time/RSVP| HITL
-    VC --> CR
-    CR -->|Yes| LM
-    CR -->|No| HITL --> LM
-    LM --> BR
-    BR -->|Over Budget (Max 3x)| VC
-    BR -->|Approved| MA
-    MA -->|3. Final Plan + SSE Events| API
-    API --> DB
-    API -->|Live Thinking & Stage Cards| UI
-```
+        |                                                       |
+        v                                                       v
++---------------------------------------+   +-----------------------------+
 
----
+|     🛡️ MULTI-LAYER GUARDRAILS         |   |   💾 SQLITE DATABASE        |
+|  1. Pydantic Rules (Budget/Guests)    |   |   (event_planner.db)        |
+|  2. Local Regex Jailbreak Filter      |   |   Saves Run Snapshots &     |
+|  3. Lakera Guard AI (/v2/guard)       |   |   Past Event History        |
+|                                       |   +-----------------------------+
+|  ⚡ REDIS LRU CACHE (allkeys-lru)      |
+|  Caches Human Replies (safe/blocked)  |
++-------------------+-------------------+
+                    |
+                    v (Validated & Safe Input)
++-------------------------------------------------------------------------+
+
+|                    🤖 CREWAI ASYNC FLOW (flow.py)                       |
+|                                                                         |
+|   [1. FeasibilityCheckTool] ---> Google Search Reality Check            |
+|               |                                                         |
+|               v                                                         |
+|   [2. Venue Coordinator] <---> [🙋 Human-in-the-Loop (hitl.py)]         |
+|   (Real Venue + Link/Contact)   (Asks Date/Time/RSVP once per run_id)   |
+|               |                                                         |
+|               v                                                         |
+|   <Has In-House Catering?> ---- No ----> [🙋 Ask Catering Preference]   |
+|               | Yes                                   |                 |
+|               +-------------------+-------------------+                 |
+|                                   v                                     |
+|   [3. Logistics Manager] (Arranges Food & Missing AV Equipment)         |
+|               |                                                         |
+|               v                                                         |
+|   <Within Remaining Budget?> -- No (Max 3x) --> Loops back to Venue     |
+|               | Yes                                                     |
+|               v                                                         |
+|   [4. Marketing Agent] (Generates Final Invite + Social Media Posts)    |
++-------------------------------------------------------------------------+
+
 
 ## 🚀 Key Engineering Highlights
 
@@ -169,6 +178,4 @@ uv run uvicorn api:app --host 0.0.0.0 --port 8000
 uv run python evaluation.py --selftest
 ```
 
-<FollowUp>
-Aapka **`README.md`** ready hai! Kya aap chahte hain ki main iske saath ek chota sa **`.gitignore`** (taaki `.env`, `*.db`, aur `.venv` GitHub par leak na hon) bhi de dun?
-</FollowUp>
+
