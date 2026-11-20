@@ -10,19 +10,19 @@ venue_llm = LLM(
     model="gemini/gemini-3.5-flash-lite",
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.7,
-    max_rpm=8
+    max_rpm=60
 )
 
 logistics_llm = LLM(
     model="gemini/gemini-3.5-flash-lite",
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.7,
-    max_rpm=8
+    max_rpm=60
 )
 
 marketing_llm = LLM(
     model="gemini/gemini-3.5-flash-lite",
     api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.7,
-    max_rpm=8
+    max_rpm=60
 )

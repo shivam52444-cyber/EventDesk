@@ -2,16 +2,16 @@
 run_manager.py - everything between the HTTP layer and the CrewAI flow.
 
   Run             one planner execution: ordered event log + status + partial/final results
-  RunStore        in-memory registry with TTL pruning (swap for Postgres later)
+  RunStore        in-memory registry with TTL pruning (swap for Postgres/SQLite later)
   FrameBridge     turns CrewAI stream frames into clean API events (progress, thinking, tools)
   ThoughtFilter   keeps only the agent's 'Thought:' text out of ReAct output (hides Action/Final Answer JSON)
   sse_events      async generator that replays + tails a run's events, resumable via Last-Event-ID
-  execute/submit  runs the flow on ONE worker thread (agents and tools are module-level singletons,
-                  so two flows must never run at the same time in one process)
+  execute/submit  runs flows concurrently across multiple worker threads (each run instantiates fresh agents/tools)
 """
 from __future__ import annotations
-
+from database import save_run_snapshot
 import asyncio
+import contextvars
 import json
 import logging
 import re
@@ -22,18 +22,21 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional
 
 import hitl
-
 log = logging.getLogger("planner")
 
-STAGES = {"Venue Coordinator": "venue", "Logistics Manager": "logistics",
-          "Marketing and Communications Agent": "marketing"}
+STAGES = {
+    "Venue Coordinator": "venue",
+    "Logistics Manager": "logistics",
+    "Marketing and Communications Agent": "marketing",
+}
 STEP_LABELS = {  # flow method -> (key, label shown to the user)
     "find_venue_step": ("venue", "Finding a venue"),
     "ask_human_catering": ("catering", "Waiting for your catering choice"),
     "run_logistics_step": ("logistics", "Planning catering and equipment"),
     "run_marketing_step": ("marketing", "Writing the invitation and posts"),
 }
-ACTIVE_RUN: Optional["Run"] = None  # safe because the executor below has exactly one worker
+
+_ACTIVE_RUN_VAR: contextvars.ContextVar[Optional["Run"]] = contextvars.ContextVar("active_run", default=None)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -58,7 +61,6 @@ class Run:
         self.t0: Optional[float] = None
         self.session = hitl.AskSession(self.publish, self.set_status)
 
-    # -- events -------------------------------------------------------------------------------
     def publish(self, type_: str, data: Optional[dict] = None) -> None:
         if type_ == "thinking":
             self.mark("first_thought")
@@ -73,7 +75,7 @@ class Run:
         for loop, evt in list(self.subs):
             try:
                 loop.call_soon_threadsafe(evt.set)
-            except RuntimeError:  # loop already closed
+            except RuntimeError:
                 pass
 
     def set_status(self, status: str) -> None:
@@ -85,7 +87,6 @@ class Run:
         if self.t0 is not None and name not in self.marks:
             self.marks[name] = round(time.perf_counter() - self.t0, 2)
 
-    # -- results ------------------------------------------------------------------------------
     def record_stage(self, stage: str, data: Optional[dict], tokens: dict, dur: float) -> None:
         with self.lock:
             self.attempts[stage] = self.attempts.get(stage, 0) + 1
@@ -97,7 +98,7 @@ class Run:
             u["by_stage"][stage] = u["by_stage"].get(stage, 0) + int(tokens.get("total_tokens", 0) or 0)
             attempt = self.attempts[stage]
         self.publish("stage_result", {"stage": stage, "attempt": attempt, "data": data, "seconds": round(dur, 2)})
-
+        save_run_snapshot(self.snapshot())
     def finish(self, ok: bool, result: Optional[dict] = None, error: Optional[dict] = None) -> None:
         with self.lock:
             self.result, self.error = result, error
@@ -112,12 +113,22 @@ class Run:
         with self.lock:
             self.finished = True
         self._wake()
+        save_run_snapshot(self.snapshot())
 
     def snapshot(self) -> dict:
         with self.lock:
-            return {"run_id": self.id, "status": self.status, "created": self.created, "inputs": self.inputs,
-                    "pending_question": self.session.pending, "partial": dict(self.partial), "result": self.result,
-                    "error": self.error, "usage": self.usage, "last_event_id": len(self.events)}
+            return {
+                "run_id": self.id,
+                "status": self.status,
+                "created": self.created,
+                "inputs": self.inputs,
+                "pending_question": self.session.pending,
+                "partial": dict(self.partial),
+                "result": self.result,
+                "error": self.error,
+                "usage": self.usage,
+                "last_event_id": len(self.events),
+            }
 
 
 class RunStore:
@@ -156,8 +167,6 @@ store = RunStore()
 # SSE
 # ---------------------------------------------------------------------------------------------
 async def sse_events(run: Run, after: int = 0, keepalive_s: float = 15.0):
-    """Replay events after `after`, then tail until the run is finished. Safe against lost wake-ups:
-    the flag is cleared BEFORE reading the log, so an event published after the read re-sets it."""
     loop, wake = asyncio.get_running_loop(), asyncio.Event()
     sub = (loop, wake)
     with run.lock:
@@ -191,9 +200,6 @@ _THOUGHT_PREFIX = re.compile(r"\s*Thought:\s*")
 
 
 class ThoughtFilter:
-    """ReAct agents stream 'Thought: ...\\nAction: ...\\nAction Input: {...}' or 'Final Answer: {...}'.
-    Users should see the thought, not the tool JSON or the structured answer. Holds back the last few
-    characters so a keyword split across chunks ('Fin' + 'al Answer:') is never leaked."""
     STOPS = ("Action Input:", "Action:", "Final Answer:")
     HOLD = max(len(s) for s in STOPS) - 1
 
@@ -239,8 +245,6 @@ class ThoughtFilter:
 
 
 class ThinkBatcher:
-    """Token-level chunks are far too chatty for SSE; coalesce to ~12 events/second."""
-
     def __init__(self, emit, min_interval: float = 0.08):
         self.emit, self.min_interval = emit, min_interval
         self.stage, self.source, self.buf, self.last = "", "thought", "", 0.0
@@ -281,9 +285,6 @@ def _short(v: Any, n: int = 300) -> str:
 
 
 class FrameBridge:
-    """CrewAI StreamFrame -> API events. Everything is read defensively because frame payloads
-    differ slightly between CrewAI versions."""
-
     def __init__(self, run: Run):
         self.run, self.filter = run, ThoughtFilter()
         self.batch = ThinkBatcher(run.publish)
@@ -305,7 +306,7 @@ class FrameBridge:
 
     def _llm(self, typ: str, ev: dict, content: str) -> None:
         stage = self.stage_for(ev)
-        if "thinking" in typ:  # real model reasoning tokens, when the provider exposes them
+        if "thinking" in typ:
             self.batch.add(stage, "reasoning", content)
         elif "chunk" in typ:
             self.batch.add(stage, "thought", self.filter.feed(content))
@@ -336,60 +337,46 @@ class FrameBridge:
             self.run.publish("step", {"step": key, "label": label, "status": status})
 
 
-# ---------------------------------------------------------------------------------------------
-# hooks + worker
-# ---------------------------------------------------------------------------------------------
 _HOOKED = False
+_HOOK_LOCK = threading.Lock()
 
 
 def install_hooks() -> None:
-    """Wrap Crew.kickoff once: emits stage_started / stage_result (so the UI can show the venue as soon as
-    it is chosen, before logistics and marketing finish) and captures token usage per stage."""
     global _HOOKED
     if _HOOKED:
         return
-    from crewai import Crew
-    orig = Crew.kickoff
+    with _HOOK_LOCK:
+        if _HOOKED:
+            return
+        from crewai import Crew
+        orig = Crew.kickoff
 
-    def wrapper(self, *args, **kwargs):
-        run = ACTIVE_RUN
-        if run is None:
-            return orig(self, *args, **kwargs)
-        role = self.agents[0].role if getattr(self, "agents", None) else "?"
-        stage = STAGES.get(role, role)
-        run.stage = stage
-        run.publish("stage_started", {"stage": stage, "role": role})
-        t0 = time.perf_counter()
-        try:
-            out = orig(self, *args, **kwargs)
-        except BaseException as e:
-            run.publish("stage_failed", {"stage": stage, "error": f"{type(e).__name__}: {e}"[:300]})
-            raise
-        p = getattr(out, "pydantic", None)
-        data = p.model_dump() if p is not None and hasattr(p, "model_dump") else None
-        u = getattr(out, "token_usage", None)
-        tokens = {}
-        if u is not None:
-            get = (lambda k: u.get(k, 0)) if isinstance(u, dict) else (lambda k: getattr(u, k, 0))
-            tokens = {k: get(k) for k in ("total_tokens", "prompt_tokens", "completion_tokens")}
-        run.record_stage(stage, data, tokens, time.perf_counter() - t0)
-        return out
+        def wrapper(self, *args, **kwargs):
+            run = _ACTIVE_RUN_VAR.get()
+            if run is None:
+                return orig(self, *args, **kwargs)
+            role = self.agents[0].role if getattr(self, "agents", None) else "?"
+            stage = STAGES.get(role, role)
+            run.stage = stage
+            run.publish("stage_started", {"stage": stage, "role": role})
+            t0 = time.perf_counter()
+            try:
+                out = orig(self, *args, **kwargs)
+            except BaseException as e:
+                run.publish("stage_failed", {"stage": stage, "error": f"{type(e).__name__}: {e}"[:300]})
+                raise
+            p = getattr(out, "pydantic", None)
+            data = p.model_dump() if p is not None and hasattr(p, "model_dump") else None
+            u = getattr(out, "token_usage", None)
+            tokens = {}
+            if u is not None:
+                get = (lambda k: u.get(k, 0)) if isinstance(u, dict) else (lambda k: getattr(u, k, 0))
+                tokens = {k: get(k) for k in ("total_tokens", "prompt_tokens", "completion_tokens")}
+            run.record_stage(stage, data, tokens, time.perf_counter() - t0)
+            return out
 
-    Crew.kickoff = wrapper
-    _HOOKED = True
-
-
-def reset_tool_counters() -> None:
-    """Tools are module-level singletons with max_usage_count; without a reset the 2nd run in the same
-    process starts with exhausted tools."""
-    try:
-        import agent as agent_mod
-        for a in (agent_mod.venue_coordinator, agent_mod.logistics_manager, agent_mod.marketing_agent):
-            for t in a.tools:
-                if hasattr(t, "current_usage_count"):
-                    t.current_usage_count = 0
-    except Exception as e:
-        log.warning("could not reset tool usage counters: %s", e)
+        Crew.kickoff = wrapper
+        _HOOKED = True
 
 
 def _public_error(e: BaseException) -> dict:
@@ -402,21 +389,20 @@ def _public_error(e: BaseException) -> dict:
 
 
 def execute(run: Run) -> None:
-    global ACTIVE_RUN
-    ACTIVE_RUN = run
-    hitl.bind(run.session)
+    token = _ACTIVE_RUN_VAR.set(run)
+    hitl.bind(run.session, run.id)
     run.t0 = time.perf_counter()
     run.set_status("running")
     bridge = FrameBridge(run)
     try:
         install_hooks()
-        reset_tool_counters()
         from flow import EventManagementFlow
         flow = EventManagementFlow()
+        flow_inputs = {**run.inputs, "run_id": run.id}
         stream = None
         if hasattr(flow, "stream_events"):
             try:
-                stream = flow.stream_events(inputs=dict(run.inputs))
+                stream = flow.stream_events(inputs=flow_inputs)
             except (AttributeError, NotImplementedError, TypeError) as e:
                 log.warning("stream_events unavailable (%s); falling back to kickoff()", e)
         if stream is not None:
@@ -429,7 +415,7 @@ def execute(run: Run) -> None:
             result = stream.result
         else:
             run.publish("info", {"message": "This CrewAI version has no stream_events; showing stage-level progress only."})
-            result = flow.kickoff(inputs=dict(run.inputs))
+            result = flow.kickoff(inputs=flow_inputs)
         bridge.batch.flush()
         if not isinstance(result, dict):
             raise RuntimeError(f"flow returned {type(result).__name__}, expected a plan dict")
@@ -439,11 +425,11 @@ def execute(run: Run) -> None:
         bridge.batch.flush()
         run.finish(False, error=_public_error(e))
     finally:
-        hitl.unbind()
-        ACTIVE_RUN = None
+        hitl.unbind(run.id)
+        _ACTIVE_RUN_VAR.reset(token)
 
 
-EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="planner")
+EXECUTOR = ThreadPoolExecutor(max_workers=10, thread_name_prefix="planner")
 
 
 def submit(inputs: dict) -> Run:
@@ -454,11 +440,8 @@ def submit(inputs: dict) -> Run:
     return run
 
 
-# ---------------------------------------------------------------------------------------------
-# input validation (blocking: Lakera does network I/O, so the API calls these via a threadpool)
-# ---------------------------------------------------------------------------------------------
 def validate_inputs(data: dict) -> dict:
-    from sstate import EventState  # runs every guardrail validator, including Lakera
+    from sstate import EventState
     st = EventState(**data)
     return {k: getattr(st, k) for k in ("event_topic", "description", "city", "guests", "total_budget")}
 
@@ -470,4 +453,4 @@ def validate_answer(text: str) -> str:
     if len(text) > 500:
         raise ValueError("Answer is too long (500 characters max).")
     import gaurdrails
-    return gaurdrails.validate_with_lakera(text, "Human Reply")
+    return gaurdrails.validate_with_lakera(text, "Human Reply", use_cache=True)

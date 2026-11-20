@@ -299,7 +299,7 @@ def reset_tool_counters() -> None:
     Without this, run #2 in the same process starts with exhausted tools (a real production hazard too)."""
     try:
         import agent as agent_mod
-        for a in (agent_mod.venue_coordinator, agent_mod.logistics_manager, agent_mod.marketing_agent):
+        for a in (agent_mod.create_venue_coordinator(), agent_mod.create_logistics_manager(), agent_mod.create_marketing_agent()):
             for t in a.tools:
                 if hasattr(t, "current_usage_count"):
                     t.current_usage_count = 0

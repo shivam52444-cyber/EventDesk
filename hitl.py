@@ -66,24 +66,32 @@ class AskSession:
             return "ok"
 
 
+# --- Yahan se Line 73 shuru hoti hai ---
 _session_var: contextvars.ContextVar = contextvars.ContextVar("hitl_session", default=None)
-_active: Optional[AskSession] = None  # fallback: the flow may run in a thread that did not inherit the context
+_sessions: dict[str, AskSession] = {}  # Har run_id ka apna alag session
+_sessions_lock = threading.Lock()
 
 
-def bind(session: AskSession) -> None:
-    global _active
+def bind(session: AskSession, run_id: Optional[str] = None) -> None:
     _session_var.set(session)
-    _active = session
+    if run_id:
+        with _sessions_lock:
+            _sessions[run_id] = session
 
 
-def unbind() -> None:
-    global _active
+def unbind(run_id: Optional[str] = None) -> None:
     _session_var.set(None)
-    _active = None
+    if run_id:
+        with _sessions_lock:
+            _sessions.pop(run_id, None)
 
 
-def current() -> Optional[AskSession]:
-    return _session_var.get() or _active
+def current(run_id: Optional[str] = None) -> Optional[AskSession]:
+    if run_id:
+        with _sessions_lock:
+            if run_id in _sessions:
+                return _sessions[run_id]
+    return _session_var.get()
 
 
 def console_ask(question: str, channel: str = "agent") -> str:
@@ -96,15 +104,17 @@ def console_ask(question: str, channel: str = "agent") -> str:
             print("⚠️ [Guardrail]: reply can't be empty. Please try again.")
             continue
         try:
-            return gaurdrails.validate_with_lakera(reply, "Human Reply")
+            return gaurdrails.validate_with_lakera(reply, "Human Reply", use_cache=True)
+
         except ValueError as e:
             print(f"\n{e}\n⚠️ That looks unsafe. Please provide a safe and valid answer.")
     return FALLBACK_REPLY
 
 
-def ask(question: str, *, kind: str = "text", options: Optional[Sequence[str]] = None, channel: str = "agent") -> str:
+def ask(question: str, *, kind: str = "text", options: Optional[Sequence[str]] = None,
+        channel: str = "agent", run_id: Optional[str] = None) -> str:
     """channel: 'agent' for questions raised by an agent tool, 'flow' for questions raised by a flow step."""
-    s = current()
+    s = current(run_id)
     if s is None:
         return console_ask(question, channel)
     return s.ask(question, kind=kind, options=options, channel=channel)

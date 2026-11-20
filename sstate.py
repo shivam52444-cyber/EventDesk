@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field,field_validator
+import uuid
+from pydantic import BaseModel, Field, field_validator
 from typing import List
 from gaurdrails import validate_with_lakera
+
 
 class VenueDetails(BaseModel):
     venue_name: str = Field(description="Selected hotel or banquet hall name")
@@ -27,13 +29,14 @@ class MarketingPlan(BaseModel):
 
 
 class EventState(BaseModel):
+    run_id: str = Field(default_factory=lambda: uuid.uuid4().hex)
     event_topic: str = ""
     description: str = ""
     city: str = ""
     guests: int = 0
     total_budget: int = 0
     catering_preference: str = "Venue In-house Catering"
-    human_qa_history: List[str] = []  # <-- NAYA FIELD: Saare Q&A yahan save honge
+    human_qa_history: List[str] = []
 
     venue_feedback: str = (
         "Initial Guideline: If the venue INCLUDES in-house catering within its price, "
@@ -41,35 +44,36 @@ class EventState(BaseModel):
         "strictly keep venue cost under 45-50% of total_budget so enough funds remain for external catering and equipment."
     )
     negotiation_attempts: int = 0
-    max_negotiations: int = 3  # <-- Yahan se aap back-and-forth limit control kar sakte hain!
-    catering_preference: str = "Venue In-house Catering"
+    max_negotiations: int = 3
+
     @field_validator("total_budget")
     @classmethod
     def validate_budget(cls, v: int) -> int:
         if v < 5000:
             raise ValueError("Guardrail Error: Minimum 'total_budget' should be at least ₹5,000.")
         return v
+
     @field_validator("event_topic")
     @classmethod
     def check_topic(cls, v: str) -> str:
         if len(v.strip()) < 3:
             raise ValueError("Event topic length should be at least 3 characters.")
         return validate_with_lakera(v, "event_topic")
-    
+
     @field_validator("description")
     @classmethod
     def check_description(cls, v: str) -> str:
         if len(v.strip()) < 10:
             raise ValueError("Description length should be at least 10 characters.")
         return validate_with_lakera(v, "description")
-    
+
     @field_validator("city")
     @classmethod
     def check_city(cls, v: str) -> str:
         if len(v.strip()) < 1:
             raise ValueError("City name is not valid.")
         return validate_with_lakera(v, "city")
-    
+
     @field_validator("guests")
     @classmethod
     def validate_guests(cls, v: int) -> int:
@@ -78,7 +82,7 @@ class EventState(BaseModel):
         if v > 50000:
             raise ValueError("Guardrail Error: number of guests exceeds maximum limit of 50,000.")
         return v
-    
+
     venue_info: dict = {}
     logistics_info: dict = {}
     marketing_info: dict = {}
