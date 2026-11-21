@@ -3,7 +3,7 @@
 
 An end-to-end, asynchronous **Multi-Agent Event Orchestration Platform** built with **CrewAI Flows**, **FastAPI (SSE Streaming)**, **Redis LRU Caching**, **SQLite Persistence**, **Lakera Guardrails**, and **DeepEval** — deployed on **AWS EC2** using least-privilege IAM & AWS Systems Manager (Zero-SSH).
 
-🌐 **Live Demo:** [http://13.48.10.11:8000/](http://13.48.10.11:8000/)
+🌐 **Live Demo:** https://tinyurl.com/yuekxcux
 
 ---
 ## 🏗️ System Architecture
