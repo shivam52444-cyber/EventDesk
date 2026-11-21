@@ -147,7 +147,6 @@ eventOrganizer/
 ├── model.py           # LLM configuration (Gemini Flash Lite)
 ├── demo.html          # Real-time SSE web UI with live agent thinking & venue contact cards
 ├── evaluation.py      # 33-metric DeepEval + deterministic evaluation harness
-Use code with caution.
 └── main.py            # CLI entry point
 ```
 
